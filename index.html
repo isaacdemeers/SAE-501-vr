@@ -4,10 +4,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>3D Tour Editor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body>
+<body class="bg-gray-100">
+
+    <!-- Container -->
+    <div class="flex h-screen">
+
+        <!-- Sidebar -->
+        <div class="w-1/3 bg-white p-6 shadow-md">
+            <h2 class="text-green-600 text-xl font-bold mb-4">Project 1</h2>
+
+            <div class="space-y-4">
+                <!-- Add Scene -->
+                <div class="flex justify-between items-center">
+                    <span class="text-lg font-medium">Add Scene</span>
+                    <button class="text-2xl text-gray-500">+</button>
+                </div>
+
+                <!-- Scene 1 -->
+                <div class="border-t pt-4">
+                    <h3 class="text-lg font-medium">Scene 1</h3>
+                    <div class="mt-2">
+                        <label class="block text-gray-700">360 Image</label>
+                        <input type="text" class="border p-2 rounded w-full" value="imageName_6467.jpeg" disabled />
+                    </div>
+                    <button class="mt-2 text-red-500">Remove Image</button>
+                </div>
+
+                <!-- Add Door -->
+                <div class="border-t pt-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-lg font-medium">Add Door</span>
+                        <button class="text-2xl text-gray-500">+</button>
+                    </div>
+
+                    <!-- Door 1 details -->
+                    <div class="mt-2">
+                        <h4 class="text-gray-700">Door 1</h4>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-500">To Scene</span>
+                            <button class="text-gray-500">Select Scene</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add Info -->
+                <div class="border-t pt-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-lg font-medium">Add Info</span>
+                        <button class="text-2xl text-gray-500">+</button>
+                    </div>
+
+                    <!-- Info 1 details -->
+                    <div class="mt-2">
+                        <h4 class="text-gray-700">Info 1</h4>
+                        <textarea class="w-full p-2 border rounded mt-1" rows="3"
+                            disabled>Here is Fred, Fred is Fred but Fred is not Fred that is Fred with Fred</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main content area -->
+        <div class="flex-1 flex flex-col items-center justify-center bg-gray-200 relative">
+            <!-- Image viewer placeholder -->
+            <div class="w-full h-full bg-gray-500">
+                <!-- 360 image simulation -->
+                <img src="path/to/your/360-image.jpg" alt="360 Image" class="object-cover w-full h-full">
+            </div>
+
+            <!-- Export and play controls -->
+            <div class="absolute top-4 right-4 space-y-2">
+                <button class="bg-white p-2 rounded-full shadow-md">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M14.752 11.168l-4.504 3.249A1 1 0 019 13.25V7.75a1 1 0 011.248-.968l4.504 1.688A1 1 0 0116 9.383v5.234a1 1 0 01-1.248.968l-4.504-1.687A1 1 0 019 13.25v-1.08" />
+                    </svg>
+                </button>
+                <button class="bg-white px-4 py-2 rounded shadow-md">Export</button>
+            </div>
+        </div>
+
+    </div>
 
 </body>
 
