@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rotation de la caméra</title>
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
+</head>
+
+
+
+<body>
+
+
+
+    <a-scene>
+
+
+        <!-- Caméra -->
+        <a-camera id="camera" cursor collider-check raycaster="objects: .collidable; showLine:true;" camera
+            look-controls wasd-controls position="0 1.6 0"></a-camera>
+        <a-entity class="hand" collider-check raycaster="objects: .collidable; showLine:true;"
+            static-body="shape: sphere; sphereRadius: 0.05;" hand-controls="hand: left; handModelStyle: lowPoly;"
+            sphere-collider="objects: .cube;" grab></a-entity>
+
+        <a-entity class="hand" collider-check raycaster="objects: .collidable; showLine:true;"
+            static-body="shape: sphere; sphereRadius: 0.05;" hand-controls="hand: right; handModelStyle: lowPoly;"
+            sphere-collider="objects: .cube;" grab></a-entity>
+
+        <a-box position="-1 0.5 -3" rotation="0 45 0" color="#4CC3D9"></a-box>
+
+        <!-- Un sol pour référence -->
+        <a-plane position="0 0 -4" rotation="-90 0 0" width="20" height="20" color="#7BC8A4"></a-plane>
+    </a-scene>
+
+
+
+
+    <script src="./js/controller.js"></script>
+
+</body>
+
+</html>
