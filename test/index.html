@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Interactive 360 Virtual Tour Builder</title>
+    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+    <style>
+        #ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 999;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        #ui input,
+        #ui button {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        #sceneList {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #sceneList li {
+            cursor: pointer;
+            margin-bottom: 5px;
+            color: blue;
+            text-decoration: underline;
+        }
+
+        #doorPlacementModal {
+            display: none;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 1000;
+        }
+
+        #doorPlacementModal h3 {
+            margin-top: 0;
+        }
+
+        #destinationSceneList li {
+            cursor: pointer;
+            margin-bottom: 5px;
+            color: blue;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- User Interface -->
+    <div id="ui">
+        <input type="file" id="sceneImageUpload" accept="image/*">
+        <button id="addSceneButton">Add Scene</button>
+        <button id="placeDoorButton">Place Door</button>
+        <h3>Scenes</h3>
+        <ul id="sceneList"></ul>
+    </div>
+
+    <!-- Door Placement Modal -->
+    <div id="doorPlacementModal">
+        <h3>Select Destination Scene</h3>
+        <ul id="destinationSceneList"></ul>
+        <button id="cancelDoorPlacementButton">Cancel</button>
+    </div>
+
+    <!-- A-Frame Scene -->
+    <a-scene>
+        <!-- Asset Management System -->
+        <a-assets id="assets">
+            <!-- Preload Door Texture -->
+            <img id="doorTexture" src="door_texture.jpg">
+        </a-assets>
+
+        <!-- Sky Entity -->
+        <a-entity id="sky" class="clickable"
+            geometry="primitive: sphere; radius: 5000; segmentsWidth: 64; segmentsHeight: 64"
+            material="shader: flat; side: back;"></a-entity>
+
+        <!-- Camera with Cursor -->
+        <a-entity id="camera" camera look-controls>
+            <a-entity cursor="rayOrigin: mouse" raycaster="objects: .clickable; far: 10000"></a-entity>
+        </a-entity>
+    </a-scene>
+
+    <!-- Script -->
+    <script src="script.js"></script>
+</body>
+
+</html>
