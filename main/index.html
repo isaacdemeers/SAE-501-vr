@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Interactive 360 Virtual Tour Builder</title>
+    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div id="ui">
+        <input type="file" id="sceneImageUpload" accept="image/*">
+        <button id="addSceneButton">Add Scene</button>
+        <button id="placeDoorButton">Place Door</button>
+        <button id="addTextButton">Add Text</button>
+
+        <h3>Scenes</h3>
+        <ul id="sceneList"></ul>
+
+        <h3>Doors in Current Scene</h3>
+        <ul id="doorList"></ul>
+
+        <h3>Texts in Current Scene</h3>
+        <ul id="textList"></ul>
+    </div>
+
+    <div id="doorPlacementModal" class="modal">
+        <h3>Select Destination Scene</h3>
+        <ul id="destinationSceneList"></ul>
+        <button id="cancelDoorPlacementButton">Cancel</button>
+    </div>
+
+    <div id="doorEditModal" class="modal">
+        <h3>Change Door Destination</h3>
+        <ul id="editDestinationSceneList"></ul>
+        <button id="cancelDoorEditButton">Cancel</button>
+    </div>
+
+    <div id="textPlacementModal" class="modal">
+        <h3>Enter Text Content</h3>
+        <textarea id="textContentInput"></textarea>
+        <button id="confirmTextPlacementButton">Place Text</button>
+        <button id="cancelTextPlacementButton">Cancel</button>
+    </div>
+
+    <div id="textEditModal" class="modal">
+        <h3>Edit Text Content</h3>
+        <textarea id="editTextContentInput"></textarea>
+        <button id="confirmTextEditButton">Save Changes</button>
+        <button id="cancelTextEditButton">Cancel</button>
+    </div>
+
+    <div id="notification"></div>
+
+    <a-scene>
+        <a-assets id="assets">
+            <img id="doorTexture" src="door_texture.jpg">
+        </a-assets>
+
+        <a-entity id="sky" class="clickable"
+            geometry="primitive: sphere; radius: 5000; segmentsWidth: 64; segmentsHeight: 64"
+            material="shader: flat; side: back;" scale="-1 1 1"></a-entity>
+
+        <a-entity id="camera" camera look-controls>
+            <a-entity cursor="rayOrigin: mouse" raycaster="objects: .clickable; far: 10000"></a-entity>
+        </a-entity>
+    </a-scene>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
