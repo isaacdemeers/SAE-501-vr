@@ -394,6 +394,7 @@ export const createListItem = (data, type, actions) => {
 
     if (type === 'door' && actions.destinationOptions) {
         const destinationSelect = document.createElement('select');
+        destinationSelect.classList.add('cat__list__item__select');
         actions.destinationOptions.forEach((scene) => {
             const option = document.createElement('option');
             option.value = scene.id;
@@ -412,6 +413,8 @@ export const createListItem = (data, type, actions) => {
 
     if (type === 'text' && actions.onContentChange) {
         const editContentBtn = document.createElement('button');
+        editContentBtn.classList.add('cat__list__item__select');
+
         editContentBtn.textContent = 'Edit Text';
         editContentBtn.addEventListener('click', () => {
             const newContent = prompt('Enter new text content:', data.content);

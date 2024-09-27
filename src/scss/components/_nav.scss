@@ -137,15 +137,41 @@
             justify-content: flex-start;
             width: 100%;
             flex-direction: column;
+            gap: .6rem;
             font-size: 1rem;
 
 
-            &__buttons {
+            &__content {
                 display: flex;
                 align-items: center;
-                justify-content: flex-start;
+                justify-content: space-between;
                 width: 100%;
                 gap: 1rem;
+
+                &__buttons {
+                    display: flex;
+                    align-items: center;
+                    justify-content: flex-end;
+
+                }
+
+
+            }
+
+            &__select {
+                width: 100%;
+                padding: .6rem;
+                border: var(--color-neutral-300) 1px solid;
+                border-radius: 5px;
+                font-size: .8rem;
+                font-family: 'Montserrat', sans-serif;
+                text-transform: uppercase;
+                cursor: pointer;
+                background-color: var(--color-neutral-200);
+
+                &:focus {
+                    outline: none;
+                }
             }
 
         }
