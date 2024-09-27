@@ -22,17 +22,14 @@ resizer.addEventListener('mousedown', (e) => {
 });
 
 function resize(e) {
-    // Calculer la nouvelle largeur de la div en fonction du mouvement de la souris
     const newWidth = originalWidth + (e.clientX - originalMouseX);
 
-    // Limiter la largeur à entre 100px et 400px
     if (newWidth >= 200 && newWidth <= 400) {
         resizableDiv.style.width = newWidth + 'px';
     }
 }
 
 function stopResize() {
-    // Arrêter l'écoute des mouvements de la souris
     window.removeEventListener('mousemove', resize);
     window.removeEventListener('mouseup', stopResize);
 }

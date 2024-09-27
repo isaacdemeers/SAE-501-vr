@@ -1,3 +1,238 @@
 @use "../abstract" as *;
 
 
+
+
+// /* Buttons and Inputs */
+// #ui input[type='file'],
+// #ui button,
+// #ui select {
+//     display: block;
+//     width: 100%;
+//     margin-bottom: 10px;
+//     padding: 8px;
+//     border: 1px solid #ccc;
+//     border-radius: 5px;
+//     font-size: 14px;
+// }
+
+// #ui button {
+//     background-color: #4caf50;
+//     border: none;
+//     color: white;
+//     cursor: pointer;
+// }
+
+// #ui button:hover {
+//     background-color: #45a049;
+// }
+
+// /* Lists */
+// #ui ul {
+//     margin: 0;
+//     padding: 0;
+//     list-style-type: none;
+// }
+
+// #ui li {
+//     display: flex;
+//     align-items: center;
+//     margin-bottom: 10px;
+// }
+
+// /* Scene Select */
+// #ui select {
+//     margin-bottom: 20px;
+// }
+
+// /* Door and Text Links */
+// .door-name,
+// .text-link,
+// .scene-name {
+//     color: #007bff;
+//     font-size: 14px;
+//     text-decoration: none;
+//     cursor: pointer;
+//     flex-grow: 1;
+// }
+
+// .text-link {
+//     color: #28a745;
+// }
+
+// /* Delete, Rename, and Edit Buttons */
+// .delete-button,
+// .rename-button {
+//     margin-left: 5px;
+//     padding: 5px 8px;
+//     background-color: #dc3545;
+//     border: none;
+//     border-radius: 5px;
+//     color: white;
+//     font-size: 12px;
+//     cursor: pointer;
+// }
+
+// .rename-button {
+//     background-color: #007bff;
+// }
+
+// .delete-button:hover {
+//     background-color: #c82333;
+// }
+
+// .rename-button:hover {
+//     background-color: #0056b3;
+// }
+
+// /* Door Destination Select */
+// .door-destination-select {
+//     margin-left: 5px;
+//     padding: 5px;
+//     font-size: 14px;
+// }
+
+// /* Text Input */
+// .text-input {
+//     padding: 5px;
+//     font-size: 14px;
+//     flex-grow: 1;
+//     resize: vertical;
+//     min-height: 50px;
+// }
+
+/* Modals */
+.modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    z-index: 1000;
+    width: 300px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 8px;
+    transform: translate(-50%, -50%);
+}
+
+.modal h3 {
+    margin-top: 0;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #ccc;
+    font-size: 18px;
+}
+
+.modal ul {
+    overflow-y: auto;
+    max-height: 200px;
+}
+
+.modal textarea {
+    width: 100%;
+    height: 100px;
+    margin-bottom: 10px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.modal input[type='text'] {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.modal button {
+    width: 100%;
+    padding: 8px;
+    background-color: #4caf50;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.modal button:hover {
+    background-color: #45a049;
+}
+
+/* Notifications */
+#notification {
+    display: none;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 1001;
+    padding: 15px;
+    background-color: #007bff;
+    border-radius: 8px;
+    color: white;
+    font-size: 14px;
+}
+
+/* Responsive UI */
+@media (max-width: 600px) {
+    #ui {
+        top: 0;
+        left: 0;
+        width: 100%;
+        max-height: 100%;
+    }
+}
+
+/* Image Grid in Modal */
+#imageGrid {
+    display: grid;
+    width: 100%;
+    margin-bottom: 10px;
+    overflow: hidden;
+    grid-template-columns: 1fr 1fr;
+    flex-wrap: wrap;
+    max-height: 400px;
+}
+
+.image-item {
+    position: relative;
+    margin: 5px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    aspect-ratio: 1/1;
+}
+
+.image-item.selected {
+    border: 2px solid #007bff;
+}
+
+.image-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.image-item {
+    display: inline-block;
+    position: relative;
+    margin: 4px;
+    cursor: pointer;
+}
+
+.image-item.selected {
+    border: 2px solid blue;
+}
+
+.delete-icon {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    padding: 2px 5px;
+    background-color: rgba(255, 0, 0, 0.7);
+    border-radius: 50%;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}

@@ -1,0 +1,45 @@
+#toggleSideBar {
+    display: none;
+    position: absolute;
+    margin: 1rem;
+    background-color: var(--color-neutral-200);
+    z-index: 999;
+
+    &:hover {
+        background-color: var(--color-neutral-300);
+    }
+}
+
+/* Style de la div */
+#resizableDiv {
+    background-color: var(--color-neutral-200);
+    ;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Ajout d'une poignée en bas à droite pour redimensionner */
+#resizer {
+    width: 20px;
+    height: 100px;
+    position: absolute;
+    padding: auto .3rem;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: grab;
+
+    &::after {
+        content: "";
+        width: 3px;
+        height: 70%;
+        background-color: var(--color-neutral-300);
+        position: absolute;
+        border-radius: 20px;
+        padding: auto .3rem;
+        top: 50%;
+        transform: translateY(-50%);
+        right: .3rem;
+        cursor: grab;
+    }
+}
