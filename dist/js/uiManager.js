@@ -388,7 +388,8 @@ export const createListItem = (data, type, actions) => {
         buttonsDiv.appendChild(deleteBtn);
     }
 
-    li.appendChild(buttonsDiv);
+    content.appendChild(buttonsDiv);
+    li.appendChild(content);
 
 
     if (type === 'door' && actions.destinationOptions) {
