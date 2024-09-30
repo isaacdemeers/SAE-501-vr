@@ -73,7 +73,7 @@ export const setupEventListeners = () => {
 
     document.getElementById('openUploadImagesModalButton').addEventListener('click', () => {
         document.getElementById('imageUploadInput').value = '';
-        document.getElementById('uploadImagesModal').style.display = 'block';
+        document.getElementById('uploadImagesModal').style.display = 'flex';
     });
 
     document.getElementById('uploadImagesButton').addEventListener('click', () => {
@@ -243,7 +243,7 @@ const openImageSelectionModal = () => {
                 });
             });
 
-            document.getElementById('imageSelectionModal').style.display = 'block';
+            document.getElementById('imageSelectionModal').style.display = 'flex';
         })
         .catch((error) => {
             console.error('Error fetching image list:', error);
@@ -282,7 +282,7 @@ const openConfirmImageDeleteModal = (imageName, imageItem) => {
     imageDeleteCallback = () => {
         deleteImage(imageName, imageItem);
     };
-    document.getElementById('confirmImageDeleteModal').style.display = 'block';
+    document.getElementById('confirmImageDeleteModal').style.display = 'flex';
 };
 
 const deleteImage = (imageName, imageItem) => {
@@ -349,6 +349,7 @@ export const createListItem = (data, type, actions) => {
     const li = document.createElement('li');
     const content = document.createElement('div');
     const text = document.createElement('p');
+    text.classList.add('cat__list__item__content__title');
 
     text.textContent = data.name;
 
@@ -384,17 +385,16 @@ export const createListItem = (data, type, actions) => {
             actions.onDelete();
         });
         deleteBtn.appendChild(deleteIcon);
-
         buttonsDiv.appendChild(deleteBtn);
     }
 
-    content.appendChild(buttonsDiv);
-    li.appendChild(content);
+
 
 
     if (type === 'door' && actions.destinationOptions) {
         const destinationSelect = document.createElement('select');
         destinationSelect.classList.add('cat__list__item__select');
+        let img = '<img class="button__icon" src="./assets/icons/corner-down-right.svg" alt="plus button">'
         actions.destinationOptions.forEach((scene) => {
             const option = document.createElement('option');
             option.value = scene.id;
@@ -408,22 +408,46 @@ export const createListItem = (data, type, actions) => {
             const newDestinationSceneId = destinationSelect.value;
             actions.onDestinationChange(newDestinationSceneId);
         });
-        li.appendChild(destinationSelect);
+
+        let destinationSelectBox = document.createElement('div');
+        let destinationSelectTo = document.createElement('p');
+        destinationSelectTo.textContent = 'To';
+        destinationSelectTo.classList.add('cat__list__item__select__title');
+
+        destinationSelectBox.classList.add('cat__list__item__select__box');
+        destinationSelectBox.innerHTML = img;
+        destinationSelectBox.appendChild(destinationSelectTo);
+        destinationSelectBox.appendChild(destinationSelect);
+
+
+        li.appendChild(destinationSelectBox);
     }
 
     if (type === 'text' && actions.onContentChange) {
-        const editContentBtn = document.createElement('button');
-        editContentBtn.classList.add('cat__list__item__select');
+        // const editContentBtn = document.createElement('button');
+        // editContentBtn.classList.add('cat__list__item__select');
 
-        editContentBtn.textContent = 'Edit Text';
+        // editContentBtn.textContent = 'Edit Text';
+
+        const editContentBtn = document.createElement('button');
+        editContentBtn.classList.add('button', 'button--square');
+        const textIcon = document.createElement('img');
+        textIcon.src = './assets/icons/forms.svg';
+        textIcon.alt = 'rename button';
+        textIcon.classList.add('button__icon', 'button__icon--small');
         editContentBtn.addEventListener('click', () => {
             const newContent = prompt('Enter new text content:', data.content);
             if (newContent !== null && newContent.trim() !== '') {
                 actions.onContentChange(newContent.trim());
             }
         });
-        li.appendChild(editContentBtn);
+        editContentBtn.appendChild(textIcon);
+        buttonsDiv.appendChild(editContentBtn);
+        li.appendChild(buttonsDiv);
     }
+
+    content.appendChild(buttonsDiv);
+    li.appendChild(content);
 
     return li;
 };
@@ -432,12 +456,12 @@ export const openRenameModal = (title, currentName, callback) => {
     document.getElementById('renameModalTitle').textContent = title;
     document.getElementById('renameInput').value = currentName;
     renameCallback = callback;
-    document.getElementById('renameModal').style.display = 'block';
+    document.getElementById('renameModal').style.display = 'flex';
 };
 
 export const openConfirmDeleteModal = (title, message, callback) => {
     document.getElementById('confirmDeleteModalTitle').textContent = title;
     document.getElementById('confirmDeleteMessage').textContent = message;
     deleteCallback = callback;
-    document.getElementById('confirmDeleteModal').style.display = 'block';
+    document.getElementById('confirmDeleteModal').style.display = 'flex';
 };

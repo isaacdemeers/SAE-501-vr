@@ -11,13 +11,14 @@
     z-index: 1000;
 
     width: 20rem;
-    height: calc(100vh - 3rem);
+    height: calc(100vh - 1rem);
     margin: 0.5rem;
     padding: 1rem;
 
     border-radius: 10px;
 
-    background-color: var(--color-neutral-300);
+    background-color: var(--color-neutral-200);
+    // backdrop-filter: blur(10px);
 
     overflow-y: scroll;
     overflow-x: hidden;
@@ -29,7 +30,9 @@
         flex-direction: column;
 
         width: 100%;
+        height: 100%;
         padding: 1rem;
+        overflow-y: scroll;
     }
 
     &__title {
@@ -152,7 +155,17 @@
                     display: flex;
                     align-items: center;
                     justify-content: flex-end;
+                    gap: .5rem;
 
+                }
+
+                &__title {
+                    font-size: .8rem;
+                    font-weight: 400;
+                    text-transform: uppercase;
+                    font-family: 'Montserrat', sans-serif;
+                    width: 100%;
+                    text-align: left;
                 }
 
 
@@ -172,8 +185,34 @@
                 &:focus {
                     outline: none;
                 }
+
+                &__box {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    width: 100%;
+                    gap: 1rem;
+                }
+
+                &__title {
+                    font-size: .8rem;
+                    font-weight: 400;
+                    text-transform: uppercase;
+                    font-family: 'Montserrat', sans-serif;
+                    text-align: left;
+                }
             }
 
         }
     }
+}
+
+.importexport {
+    width: 100%;
+    display: flex;
+    align-items: center;
+
+    flex-direction: column;
+    justify-content: space-between;
+    gap: .6rem;
 }

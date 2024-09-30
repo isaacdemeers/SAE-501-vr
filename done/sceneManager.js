@@ -94,7 +94,7 @@ export const openSceneManagementModal = () => {
         fragment.appendChild(li);
     });
     sceneListEl.appendChild(fragment);
-    document.getElementById('sceneManagementModal').style.display = 'block';
+    document.getElementById('sceneManagementModal').style.display = 'flex';
 };
 
 const deleteScene = (sceneId) => {

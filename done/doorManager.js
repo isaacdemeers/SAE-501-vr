@@ -67,7 +67,7 @@ const openDoorPlacementModal = () => {
             fragment.appendChild(li);
         });
     destinationSceneListEl.appendChild(fragment);
-    document.getElementById('doorPlacementModal').style.display = 'block';
+    document.getElementById('doorPlacementModal').style.display = 'flex';
     showNotification('', 'info');
 };
 

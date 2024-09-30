@@ -25,6 +25,17 @@
 
     }
 
+    &--fit {
+        width: fit-content;
+        padding: .5rem;
+    }
+
+    &--center {
+        justify-content: center;
+    }
+
+    &--border {}
+
     &__icon {
 
         &--small {
