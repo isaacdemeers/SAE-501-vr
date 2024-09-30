@@ -36,6 +36,23 @@
 
     &--border {}
 
+    &--delete {
+        background-color: var(--color-ui-delete);
+        justify-content: center;
+
+    }
+
+    &--cancel {
+        background-color: var(--color-ui-cancel);
+        justify-content: center;
+    }
+
+    &--validate {
+        background-color: var(--color-ui-validate);
+        justify-content: center;
+
+    }
+
     &__icon {
 
         &--small {

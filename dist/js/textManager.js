@@ -82,7 +82,7 @@ export const createText = (textData) => {
     textEl.setAttribute('value', textData.content);
     textEl.setAttribute('color', '#FFFFFF');
     textEl.setAttribute('align', 'center');
-    textEl.setAttribute('width', 4);
+    textEl.setAttribute('width', 10);
     textEl.setAttribute('position', vector3ToObject(textData.position));
     textEl.setAttribute('class', 'text-element');
     textEl.setAttribute('text-id', textData.id);

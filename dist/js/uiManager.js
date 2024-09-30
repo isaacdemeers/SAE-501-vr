@@ -348,53 +348,62 @@ const handleProjectImport = (event) => {
 export const createListItem = (data, type, actions) => {
     const li = document.createElement('li');
     const content = document.createElement('div');
+    const buttonsDiv = document.createElement('div');
     const text = document.createElement('p');
-    text.classList.add('cat__list__item__content__title');
-
-    text.textContent = data.name;
 
     li.classList.add('cat__list__item');
-    content.classList.add('cat__list__item__content');
-    content.appendChild(text);
 
-    const buttonsDiv = document.createElement('div');
+    content.classList.add('cat__list__item__content');
+
     buttonsDiv.classList.add('cat__list__item__content__buttons');
+
+    text.classList.add('cat__list__item__content__title');
+    text.textContent = data.name;
 
     if (actions.onRename) {
         const renameBtn = document.createElement('button');
-        renameBtn.classList.add('button', 'button--square');
         const renameIcon = document.createElement('img');
-        renameIcon.src = './assets/icons/photo-edit.svg';
-        renameIcon.alt = 'rename button';
-        renameIcon.classList.add('button__icon', 'button__icon--small');
+
+        renameBtn.classList.add('button', 'button--square');
+
         renameBtn.addEventListener('click', () => {
             actions.onRename();
         });
+
+        renameIcon.src = './assets/icons/photo-edit.svg';
+        renameIcon.alt = 'rename button';
+        renameIcon.classList.add('button__icon', 'button__icon--small');
+
         renameBtn.appendChild(renameIcon);
         buttonsDiv.appendChild(renameBtn);
     }
 
     if (actions.onDelete) {
         const deleteBtn = document.createElement('button');
-        deleteBtn.classList.add('button', 'button--square');
         const deleteIcon = document.createElement('img');
-        deleteIcon.src = './assets/icons/trash.svg';
-        deleteIcon.alt = 'manage scene button';
-        deleteIcon.classList.add('button__icon', 'button__icon--small');
+
+        deleteBtn.classList.add('button', 'button--square');
         deleteBtn.addEventListener('click', () => {
             actions.onDelete();
         });
+
+        deleteIcon.src = './assets/icons/trash.svg';
+        deleteIcon.alt = 'manage scene button';
+        deleteIcon.classList.add('button__icon', 'button__icon--small');
+
         deleteBtn.appendChild(deleteIcon);
         buttonsDiv.appendChild(deleteBtn);
     }
-
-
-
-
+    console.log(type);
     if (type === 'door' && actions.destinationOptions) {
         const destinationSelect = document.createElement('select');
+        const img = document.createElement('img');
+
         destinationSelect.classList.add('cat__list__item__select');
-        let img = '<img class="button__icon" src="./assets/icons/corner-down-right.svg" alt="plus button">'
+
+        img.src = './assets/icons/corner-down-right.svg';
+        img.classList.add('button__icon');
+
         actions.destinationOptions.forEach((scene) => {
             const option = document.createElement('option');
             option.value = scene.id;
@@ -404,23 +413,29 @@ export const createListItem = (data, type, actions) => {
             }
             destinationSelect.appendChild(option);
         });
+
         destinationSelect.addEventListener('change', () => {
             const newDestinationSceneId = destinationSelect.value;
             actions.onDestinationChange(newDestinationSceneId);
         });
 
-        let destinationSelectBox = document.createElement('div');
-        let destinationSelectTo = document.createElement('p');
-        destinationSelectTo.textContent = 'To';
-        destinationSelectTo.classList.add('cat__list__item__select__title');
+        const destinationSelectBox = document.createElement('div');
+        const destinationSelectText = document.createElement('p');
+
+        destinationSelectText.textContent = 'To';
+        destinationSelectText.classList.add('cat__list__item__select__title');
 
         destinationSelectBox.classList.add('cat__list__item__select__box');
-        destinationSelectBox.innerHTML = img;
-        destinationSelectBox.appendChild(destinationSelectTo);
+        destinationSelectBox.appendChild(img);
+
+        destinationSelectBox.appendChild(destinationSelectText);
         destinationSelectBox.appendChild(destinationSelect);
 
-
+        content.appendChild(text);
+        content.appendChild(buttonsDiv);
+        li.appendChild(content);
         li.appendChild(destinationSelectBox);
+
     }
 
     if (type === 'text' && actions.onContentChange) {
@@ -430,24 +445,39 @@ export const createListItem = (data, type, actions) => {
         // editContentBtn.textContent = 'Edit Text';
 
         const editContentBtn = document.createElement('button');
-        editContentBtn.classList.add('button', 'button--square');
         const textIcon = document.createElement('img');
-        textIcon.src = './assets/icons/forms.svg';
-        textIcon.alt = 'rename button';
-        textIcon.classList.add('button__icon', 'button__icon--small');
+
+        editContentBtn.classList.add('button', 'button--square');
         editContentBtn.addEventListener('click', () => {
             const newContent = prompt('Enter new text content:', data.content);
             if (newContent !== null && newContent.trim() !== '') {
                 actions.onContentChange(newContent.trim());
             }
         });
+
+        textIcon.src = './assets/icons/forms.svg';
+        textIcon.alt = 'rename button';
+        textIcon.classList.add('button__icon', 'button__icon--small');
+
+
         editContentBtn.appendChild(textIcon);
         buttonsDiv.appendChild(editContentBtn);
-        li.appendChild(buttonsDiv);
+
+        content.appendChild(text);
+        content.appendChild(buttonsDiv);
+        li.appendChild(content);
     }
 
-    content.appendChild(buttonsDiv);
-    li.appendChild(content);
+    if (type === 'scene') {
+
+
+        content.appendChild(text);
+        content.appendChild(buttonsDiv);
+        li.appendChild(content);
+    }
+
+
+
 
     return li;
 };

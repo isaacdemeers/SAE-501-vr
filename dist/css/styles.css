@@ -197,6 +197,9 @@ table {
   --color-neutral-400: #d3d3d3;
   --color-primary-400: #fe4647;
   --color-transp-200: rgba(243, 243, 243, 0.7607843137);
+  --color-ui-delete: #af7070;
+  --color-ui-cancel: #f0f0f0;
+  --color-ui-validate: #70af87;
   --ff-Outfit: 'Outfit', sans-serif;
   --ff-Fugaz: 'Fugaz One', sans-serif;;
   --ff-Mont: 'Montserrat', sans-serif;;
@@ -469,6 +472,18 @@ table {
   padding: 0.5rem;
 }
 .button--center {
+  justify-content: center;
+}
+.button--delete {
+  background-color: var(--color-ui-delete);
+  justify-content: center;
+}
+.button--cancel {
+  background-color: var(--color-ui-cancel);
+  justify-content: center;
+}
+.button--validate {
+  background-color: var(--color-ui-validate);
   justify-content: center;
 }
 .button__icon--small {
