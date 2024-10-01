@@ -474,18 +474,6 @@ table {
 .button--center {
   justify-content: center;
 }
-.button--delete {
-  background-color: var(--color-ui-delete);
-  justify-content: center;
-}
-.button--cancel {
-  background-color: var(--color-ui-cancel);
-  justify-content: center;
-}
-.button--validate {
-  background-color: var(--color-ui-validate);
-  justify-content: center;
-}
 .button__icon--small {
   width: 1rem;
   height: 1rem;
