@@ -38,35 +38,23 @@
                     <select class="cat__select" id="sceneSelect"></select>
 
                 </div>
-
-
-
             </div>
 
             <div class="cat">
-                <h3 class="cat__title">Doors</h3>
+                <h3 class="cat__title">Tags</h3>
 
-                <button class="button" id="placeDoorButton">New Door<img class="button__icon"
+                <button class="button" id="addDoorButton">New Door<img class="button__icon"
                         src="./assets/icons/plus.svg" alt="plus button"></button>
-
-                <h3 class="cat__title cat__title--ital">Doors in the scene</h3>
-                <ul class="cat__list" id="doorList"></ul>
-
-            </div>
-
-            <div class="cat">
-                <h3 class="cat__title">Texts</h3>
-
                 <button class="button" id="addTextButton">New Text<img class="button__icon"
                         src="./assets/icons/plus.svg" alt="plus button"></button>
+                <button class="button" id="addImageButton">New Image Tag<img class="button__icon"
+                        src="./assets/icons/plus.svg" alt="plus button"></button>
+                <button class="button" id="addVideoButton">New Video Tag<img class="button__icon"
+                        src="./assets/icons/plus.svg" alt="plus button"></button>
 
-                <h3 class="cat__title cat__title--ital">Texts in the scene</h3>
-
-                <ul class="cat__list" id="textList"></ul>
+                <h3 class="cat__title cat__title--ital">Tags in the scene</h3>
+                <ul class="cat__list" id="tagList"></ul>
             </div>
-
-
-
 
             <div class="cat">
                 <div class="importexport">
@@ -127,6 +115,25 @@
         <button class="button button--cancel" id="cancelTextPlacementButton">Close</button>
     </div>
 
+    <div id="mediaSelectionModal" class="modal">
+        <h3 class="modal__title">Select Media to Add</h3>
+        <div class="modal__galery" id="mediaGrid"></div>
+        <div class="modal__buttonBox">
+            <button class="button button--fit" id="openUploadMediaModalButton"> <img class="button__icon "
+                    src="./assets/icons/upload.svg" alt="upload button"></button>
+            <button class="button button--center button--cancel" id="cancelMediaSelectionButton">Close</button>
+            <button class="button button--center button--validate" id="confirmMediaSelectionButton">Add Selected
+                Media</button>
+        </div>
+    </div>
+
+    <div id="uploadMediaModal" class="modal">
+        <h3 class="modal__title">Upload Media</h3>
+        <input type="file" id="mediaUploadInput" accept="image/*,video/*" multiple>
+        <button class="button button--validate" id="uploadMediaButton">Upload Media</button>
+        <button class="button button--cancel" id="cancelUploadMediaButton">Close</button>
+    </div>
+
     <div id="renameModal" class="modal">
         <h3 class="modal__title" id="renameModalTitle">Rename Item</h3>
         <input type="text" id="renameInput">
@@ -146,6 +153,20 @@
         <p class="modal__text" id="confirmImageDeleteMessage">Are you sure you want to delete this image?</p>
         <button class="button button--delete" id="confirmImageDeleteButton">Delete</button>
         <button class="button button--cancel" id="cancelImageDeleteButton">Close</button>
+    </div>
+
+    <div id="confirmMediaDeleteModal" class="modal">
+        <h3 class="modal__title">Confirm Deletion</h3>
+        <p class="modal__text" id="confirmMediaDeleteMessage">Are you sure you want to delete this media?</p>
+        <button class="button button--delete" id="confirmMediaDeleteButton">Delete</button>
+        <button class="button button--cancel" id="cancelMediaDeleteButton">Close</button>
+    </div>
+
+    <div id="textEditModal" class="modal">
+        <h3 class="modal__title">Edit Text Content</h3>
+        <textarea id="textEditInput"></textarea>
+        <button class="button button--validate" id="confirmTextEditButton">Save Changes</button>
+        <button class="button button--cancel" id="cancelTextEditButton">Close</button>
     </div>
 
     <div class="notification" id="notification"></div>

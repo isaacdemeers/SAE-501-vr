@@ -1,6 +1,5 @@
 import { generateEntityId, resetIdCounters, getIdCounters } from './utilities.js';
-import { updateDoorList, createDoor } from './doorManager.js';
-import { updateTextList, createText } from './textManager.js';
+import { createTag, updateTagList } from './tagManager.js';
 import {
     showNotification,
     createListItem,
@@ -8,6 +7,7 @@ import {
     openConfirmDeleteModal,
     assetsEl,
     skyEl,
+    updateTagButtonsState, // Import de la fonction
 } from './uiManager.js';
 
 export let scenes = [];
@@ -43,8 +43,7 @@ const addScene = (imageSrc, imageName, sceneDataInput) => {
         name: sceneDataInput?.name || imageName || `Scene ${scenes.length + 1}`,
         image: `#${imgEl.getAttribute('id')}`,
         imageSrc: imageSrc,
-        doors: [],
-        texts: [],
+        tags: [],
     };
 
     scenes.push(sceneData);
@@ -53,6 +52,8 @@ const addScene = (imageSrc, imageName, sceneDataInput) => {
     if (!currentScene || sceneDataInput) {
         switchScene(sceneId);
     }
+
+    updateTagButtonsState(); // Mise à jour de l'état des boutons des tags après ajout d'une scène
 };
 
 export const switchScene = (sceneId) => {
@@ -61,15 +62,13 @@ export const switchScene = (sceneId) => {
         currentScene = scene;
         skyEl.setAttribute('material', 'src', scene.image);
 
-        document.querySelectorAll('.door, .text-element').forEach((el) => {
+        document.querySelectorAll('.tag-element').forEach((el) => {
             el.parentNode.removeChild(el);
         });
 
-        scene.doors.forEach((doorData) => createDoor(doorData));
-        scene.texts.forEach((textData) => createText(textData));
+        scene.tags.forEach((tagData) => createTag(tagData));
 
-        updateDoorList();
-        updateTextList();
+        updateTagList();
         updateSceneSelect();
     }
 };
@@ -121,9 +120,11 @@ const deleteScene = (sceneId) => {
                 }
 
                 scenes.forEach((s) => {
-                    s.doors = s.doors.filter((doorData) => {
-                        if (doorData.destinationSceneId === sceneId) {
-                            doorData.element.parentNode.removeChild(doorData.element);
+                    s.tags = s.tags.filter((tagData) => {
+                        if (tagData.destinationSceneId === sceneId) {
+                            if (tagData.element && tagData.element.parentNode) {
+                                tagData.element.parentNode.removeChild(tagData.element);
+                            }
                             return false;
                         }
                         return true;
@@ -136,18 +137,18 @@ const deleteScene = (sceneId) => {
                     } else {
                         currentScene = null;
                         skyEl.setAttribute('material', 'src', '');
-                        document.querySelectorAll('.door, .text-element').forEach((el) => {
+                        document.querySelectorAll('.tag-element').forEach((el) => {
                             el.parentNode.removeChild(el);
                         });
-                        document.getElementById('doorList').innerHTML = '';
-                        document.getElementById('textList').innerHTML = '';
+                        document.getElementById('tagList').innerHTML = '';
                     }
                 } else {
-                    updateDoorList();
-                    updateTextList();
+                    updateTagList();
                 }
                 updateSceneSelect();
                 updateSceneManagementModal();
+
+                updateTagButtonsState(); // Mise à jour de l'état des boutons des tags après suppression d'une scène
             }
         }
     );
@@ -160,7 +161,7 @@ const renameScene = (sceneId) => {
             if (newName && newName.trim() !== '') {
                 scene.name = newName.trim();
                 updateSceneSelect();
-                updateDoorList();
+                updateTagList();
                 updateSceneManagementModal();
             }
         });
@@ -169,20 +170,15 @@ const renameScene = (sceneId) => {
 
 export const initializeScene = () => {
     showNotification('Welcome! Please add scenes to get started.', 'info');
+
+    updateTagButtonsState(); // Mise à jour de l'état des boutons des tags lors de l'initialisation
 };
 
 export const exportProjectData = () => {
     const scenesCopy = scenes.map((scene) => {
         const sceneCopy = { ...scene };
-        sceneCopy.doors = scene.doors.map((doorData) => {
-            const { element, labelElement, position, ...rest } = doorData;
-            return {
-                ...rest,
-                position: position.toArray(),
-            };
-        });
-        sceneCopy.texts = scene.texts.map((textData) => {
-            const { element, position, ...rest } = textData;
+        sceneCopy.tags = scene.tags.map((tagData) => {
+            const { element, position, ...rest } = tagData;
             return {
                 ...rest,
                 position: position.toArray(),
@@ -203,42 +199,29 @@ export const exportProjectData = () => {
 export const importProjectData = (projectData) => {
     scenes = [];
     currentScene = null;
-    document.getElementById('doorList').innerHTML = '';
-    document.getElementById('textList').innerHTML = '';
+    document.getElementById('tagList').innerHTML = '';
 
     assetsEl.innerHTML = '';
 
-    resetIdCounters(projectData.idCounters || { scene: 0, door: 0, text: 0 });
+    resetIdCounters(projectData.idCounters || { scene: 0, tag: 0 });
 
     projectData.scenes.forEach((sceneData) => {
         const imageSrc = sceneData.imageSrc;
-        addScene(imageSrc, sceneData.name, { ...sceneData, doors: [], texts: [] });
+        addScene(imageSrc, sceneData.name, { ...sceneData, tags: [] });
     });
 
     projectData.scenes.forEach((sceneData) => {
         const existingScene = scenes.find((s) => s.id === sceneData.id);
         if (existingScene) {
-            sceneData.doors.forEach((doorDataInput) => {
-                const position = new THREE.Vector3().fromArray(doorDataInput.position);
-                const doorData = {
-                    ...doorDataInput,
+            sceneData.tags.forEach((tagDataInput) => {
+                const position = new THREE.Vector3().fromArray(tagDataInput.position);
+                const tagData = {
+                    ...tagDataInput,
                     position,
                 };
-                existingScene.doors.push(doorData);
+                existingScene.tags.push(tagData);
                 if (currentScene && currentScene.id === existingScene.id) {
-                    createDoor(doorData);
-                }
-            });
-
-            sceneData.texts.forEach((textDataInput) => {
-                const position = new THREE.Vector3().fromArray(textDataInput.position);
-                const textData = {
-                    ...textDataInput,
-                    position,
-                };
-                existingScene.texts.push(textData);
-                if (currentScene && currentScene.id === existingScene.id) {
-                    createText(textData);
+                    createTag(tagData);
                 }
             });
         }
@@ -247,4 +230,6 @@ export const importProjectData = (projectData) => {
     if (scenes.length > 0) {
         switchScene(scenes[0].id);
     }
+
+    updateTagButtonsState(); // Mise à jour de l'état des boutons des tags après importation du projet
 };

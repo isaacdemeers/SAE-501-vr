@@ -53,6 +53,12 @@
 
     }
 
+    &:disabled {
+        opacity: .5;
+        background-color: var(--color-neutral-300);
+        cursor: default;
+    }
+
 
     &__icon {
 
