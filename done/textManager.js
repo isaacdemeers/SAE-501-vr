@@ -50,7 +50,7 @@ export const cancelPlacingText = () => {
 
 const openTextPlacementModal = () => {
     document.getElementById('textContentInput').value = '';
-    document.getElementById('textPlacementModal').style.display = 'block';
+    document.getElementById('textPlacementModal').style.display = 'flex';
 };
 
 export const confirmTextPlacement = () => {

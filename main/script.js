@@ -135,6 +135,8 @@ function switchScene(sceneId) {
 
         highlightCurrentScene();
     }
+
+    console.log(scenes);
 }
 
 function highlightCurrentScene() {
@@ -191,7 +193,7 @@ placeDoorButton.addEventListener('click', () => {
         return;
     }
     placingDoor = true;
-    showNotification('Click on the scene to place a door.', 'info');
+    showNotification('Clickez sur la scene.', 'info');
     placeDoorButton.disabled = true;
 });
 
@@ -380,7 +382,7 @@ confirmTextPlacementButton.addEventListener('click', () => {
 
     const textData = {
         id: textId,
-        name: 'Text ' + (currentScene.texts.length + 1), // Default name
+        name: 'Text ' + (currentScene.texts.length + 1),
         content: textContent,
         position: textPosition
     };
