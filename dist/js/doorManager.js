@@ -2,8 +2,16 @@ import { sceneEl, showNotification, createListItem, cameraEl, openRenameModal, o
 import { scenes, currentScene, switchScene } from './sceneManager.js';
 import { generateEntityId, vector3ToObject } from './utilities.js';
 
+//##################################################
+//#    MODEL
+//##################################################
+
 let placingDoor = false;
 let doorPosition = null;
+
+//##################################################
+//#    CONTROLLER
+//##################################################
 
 export const startPlacingDoor = () => {
     if (!currentScene) {
@@ -48,6 +56,28 @@ export const cancelPlacingDoor = () => {
     document.getElementById('placeDoorButton').disabled = false;
 };
 
+const updateDoorDestination = (doorData, newDestinationSceneId) => {
+    doorData.destinationSceneId = newDestinationSceneId;
+    doorData.element.setAttribute('door-destination', newDestinationSceneId);
+
+    const destinationScene = scenes.find((s) => s.id === newDestinationSceneId);
+    if (doorData.labelElement) {
+        doorData.labelElement.setAttribute('value', destinationScene.name);
+    }
+
+    updateDoorList();
+};
+
+
+const onDoorClick = function () {
+    const destinationSceneId = this.getAttribute('door-destination');
+    switchScene(destinationSceneId);
+};
+
+//##################################################
+//#    VUE
+//##################################################
+
 const openDoorPlacementModal = () => {
     const destinationSceneListEl = document.getElementById('destinationSceneList');
     destinationSceneListEl.innerHTML = '';
@@ -67,7 +97,7 @@ const openDoorPlacementModal = () => {
     showNotification('', 'info');
 };
 
-const selectDestinationScene = (destinationSceneId) => {
+const selectDestinationScene = function (destinationSceneId) {
     const doorId = generateEntityId('door');
     const doorData = {
         id: doorId,
@@ -86,7 +116,7 @@ const selectDestinationScene = (destinationSceneId) => {
     document.getElementById('placeDoorButton').disabled = false;
 };
 
-export const createDoor = (doorData) => {
+export const createDoor = function (doorData) {
     const doorEl = document.createElement('a-box');
     doorEl.setAttribute('color', '#4CC3D9');
     doorEl.setAttribute('height', 2);
@@ -123,12 +153,7 @@ export const createDoor = (doorData) => {
     doorData.element = doorEl;
 };
 
-const onDoorClick = function () {
-    const destinationSceneId = this.getAttribute('door-destination');
-    switchScene(destinationSceneId);
-};
-
-export const updateDoorList = () => {
+export const updateDoorList = function () {
     const doorListEl = document.getElementById('doorList');
     doorListEl.innerHTML = '';
     const fragment = document.createDocumentFragment();
@@ -158,7 +183,7 @@ export const updateDoorList = () => {
     doorListEl.appendChild(fragment);
 };
 
-const deleteDoor = (doorId) => {
+const deleteDoor = function (doorId) {
     openConfirmDeleteModal(
         'Delete Door',
         'Are you sure you want to delete this door?',
@@ -175,17 +200,7 @@ const deleteDoor = (doorId) => {
     );
 };
 
-const updateDoorDestination = (doorData, newDestinationSceneId) => {
-    doorData.destinationSceneId = newDestinationSceneId;
-    doorData.element.setAttribute('door-destination', newDestinationSceneId);
 
-    const destinationScene = scenes.find((s) => s.id === newDestinationSceneId);
-    if (doorData.labelElement) {
-        doorData.labelElement.setAttribute('value', destinationScene.name);
-    }
-
-    updateDoorList();
-};
 
 const renameDoor = (doorId) => {
     const doorData = currentScene.doors.find((d) => d.id === doorId);
