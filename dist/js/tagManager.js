@@ -6,7 +6,7 @@ import {
     openRenameModal,
     openConfirmDeleteModal,
     openMediaSelectionModal,
-    openTextEditModal, // Importer la fonction pour ouvrir la modale d'édition de texte
+    openTextEditModal,
 } from './uiManager.js';
 import { currentScene, scenes, switchScene } from './sceneManager.js';
 import { generateEntityId, vector3ToObject } from './utilities.js';
@@ -17,12 +17,12 @@ let placingTagType = null;
 
 export const startPlacingTag = (type) => {
     if (!currentScene) {
-        showNotification('Please add a scene first.', 'error');
+        showNotification('Veuillez d\'abord ajouter une scène.', 'error');
         return;
     }
     placingTag = true;
     placingTagType = type;
-    showNotification(`Click on the scene to place a ${type}.`, 'info');
+    showNotification(`Cliquez sur la scène pour placer un ${type}.`, 'info');
     document.getElementById(`add${capitalizeFirstLetter(type)}Button`).disabled = true;
 };
 
@@ -93,12 +93,15 @@ const confirmTagPlacement = (content) => {
         content: content || '',
         position: tagPosition.clone(),
         destinationSceneId: placingTagType === 'door' ? content : null,
-        sceneId: currentScene.id, // Associer le tag à la scène actuelle
+        sceneId: currentScene.id,
     };
+
     currentScene.tags.push(tagData);
+
     if (currentScene.id === tagData.sceneId) {
         createTag(tagData);
     }
+
     updateTagList();
     placingTag = false;
     tagPosition = null;
@@ -114,7 +117,7 @@ const selectDestinationScene = (destinationSceneId) => {
 export const confirmTextPlacement = () => {
     const textContent = document.getElementById('textContentInput').value.trim();
     if (textContent === '') {
-        showNotification('Text content cannot be empty.', 'error');
+        showNotification('Le contenu du texte ne peut pas être vide.', 'error');
         return;
     }
     confirmTagPlacement(textContent);
@@ -126,13 +129,18 @@ export const confirmMediaSelection = (selectedMedia) => {
         confirmTagPlacement(`assets/${selectedMedia}`);
         document.getElementById('mediaSelectionModal').style.display = 'none';
     } else {
-        showNotification('No media selected.', 'error');
+        showNotification('Aucun média sélectionné.', 'error');
     }
 };
 
 export const createTag = (tagData) => {
-    createPlaceholder(tagData);
-    tagData.contentVisible = false;
+    if (tagData.type === 'door') {
+        createContentElement(tagData);
+        tagData.contentVisible = true;
+    } else {
+        createPlaceholder(tagData);
+        tagData.contentVisible = false;
+    }
 };
 
 const createPlaceholder = (tagData) => {
@@ -164,25 +172,30 @@ const createContentElement = (tagData) => {
         contentEl.setAttribute('height', 2);
         contentEl.setAttribute('width', 1);
         contentEl.setAttribute('depth', 0.1);
+        contentEl.setAttribute('class', 'tag-element clickable');
+        contentEl.setAttribute('look-at', '#camera');
+        contentEl.setAttribute('position', vector3ToObject(tagData.position));
         contentEl.addEventListener('click', () => {
             switchScene(tagData.destinationSceneId);
         });
         const destinationScene = scenes.find((s) => s.id === tagData.destinationSceneId);
         const labelEl = document.createElement('a-text');
-        labelEl.setAttribute('value', destinationScene ? destinationScene.name : 'Unknown');
+        labelEl.setAttribute('value', destinationScene ? destinationScene.name : 'Inconnu');
         labelEl.setAttribute('align', 'center');
         labelEl.setAttribute('color', '#FFFFFF');
         labelEl.setAttribute('width', 4);
         labelEl.setAttribute('position', { x: 0, y: 1.5, z: 0 });
         labelEl.setAttribute('look-at', '#camera');
         contentEl.appendChild(labelEl);
+        tagData.element = contentEl;
+        sceneEl.appendChild(contentEl);
+        return;
     } else if (tagData.type === 'image') {
         contentEl = document.createElement('a-image');
         contentEl.setAttribute('src', tagData.content);
         contentEl.setAttribute('look-at', '#camera');
 
-        // Ajuster les dimensions tout en respectant le ratio d'aspect
-        contentEl.addEventListener('loaded', () => {
+        contentEl.addEventListener('materialtextureloaded', () => {
             const img = contentEl.components.material.material.map.image;
             if (img) {
                 const aspect = img.width / img.height;
@@ -199,8 +212,8 @@ const createContentElement = (tagData) => {
         contentEl.setAttribute('autoplay', 'true');
         contentEl.setAttribute('loop', 'true');
         contentEl.setAttribute('look-at', '#camera');
+        contentEl.setAttribute('mute', 'true');
 
-        // Jouer et mettre en pause la vidéo en fonction de sa visibilité
         contentEl.addEventListener('componentchanged', (evt) => {
             if (evt.detail.name === 'visible') {
                 const videoEl = contentEl.components.material.material.map.image;
@@ -214,7 +227,6 @@ const createContentElement = (tagData) => {
             }
         });
 
-        // Ajuster les dimensions tout en respectant le ratio d'aspect
         contentEl.addEventListener('loadedmetadata', () => {
             const video = contentEl.components.material.material.map.image;
             if (video) {
@@ -229,12 +241,17 @@ const createContentElement = (tagData) => {
     }
     contentEl.setAttribute('position', vector3ToObject(tagData.position));
     contentEl.setAttribute('class', 'tag-element clickable');
+    contentEl.setAttribute('look-at', '#camera');
     contentEl.addEventListener('click', () => onTagClick(tagData));
     sceneEl.appendChild(contentEl);
     tagData.element = contentEl;
 };
 
 const onTagClick = (tagData) => {
+    if (tagData.type === 'door') {
+        return;
+    }
+
     if (tagData.contentVisible) {
         if (tagData.element && tagData.element.parentNode) {
             tagData.element.parentNode.removeChild(tagData.element);
@@ -287,15 +304,15 @@ const updateTagDestination = (tagData, newDestinationSceneId) => {
         const labelEl = tagData.element.querySelector('a-text');
         const destinationScene = scenes.find((s) => s.id === newDestinationSceneId);
         if (labelEl) {
-            labelEl.setAttribute('value', destinationScene ? destinationScene.name : 'Unknown');
+            labelEl.setAttribute('value', destinationScene ? destinationScene.name : 'Inconnu');
         }
     }
 };
 
 const deleteTag = (tagId) => {
     openConfirmDeleteModal(
-        'Delete Tag',
-        'Are you sure you want to delete this tag?',
+        'Supprimer le tag',
+        'Êtes-vous sûr de vouloir supprimer ce tag ?',
         () => {
             const tagIndex = currentScene.tags.findIndex((t) => t.id === tagId);
             if (tagIndex !== -1) {
@@ -313,7 +330,7 @@ const deleteTag = (tagId) => {
 const renameTag = (tagId) => {
     const tagData = currentScene.tags.find((t) => t.id === tagId);
     if (tagData) {
-        openRenameModal('Rename Tag', tagData.name, (newName) => {
+        openRenameModal('Renommer le tag', tagData.name, (newName) => {
             if (newName && newName.trim() !== '') {
                 tagData.name = newName.trim();
                 updateTagList();
