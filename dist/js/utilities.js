@@ -34,16 +34,9 @@ AFRAME.registerComponent('look-at', {
 });
 
 export const cartesianToSpherical = (cartesian) => {
-    const radius = Math.sqrt(cartesian.x * cartesian.x + cartesian.y * cartesian.y + cartesian.z * cartesian.z);
-    const theta = Math.atan2(cartesian.x, cartesian.z);
-    const phi = Math.acos(cartesian.y / radius);
-    return { radius, theta, phi };
+    return new THREE.Spherical().setFromVector3(cartesian);
 };
 
 export const sphericalToCartesian = (spherical) => {
-    const { radius, theta, phi } = spherical;
-    const x = radius * Math.sin(phi) * Math.sin(theta);
-    const y = radius * Math.cos(phi);
-    const z = radius * Math.sin(phi) * Math.cos(theta);
-    return new THREE.Vector3(x, y, z);
+    return new THREE.Vector3().setFromSpherical(spherical);
 };

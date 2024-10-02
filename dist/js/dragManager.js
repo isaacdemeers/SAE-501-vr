@@ -3,8 +3,10 @@ import { saveProjectToLocalStorage } from './storageManager.js';
 
 let isDragging = false;
 let draggedTag = null;
-let tagSphericalCoords = null;
-let lastMousePosition = new THREE.Vector2();
+let lastSpherical = new THREE.Spherical();
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+const sphere = new THREE.Sphere(new THREE.Vector3(0, 0, 0), 5); // Assuming a sphere radius of 5
 
 export const initDraggable = (tagElement, tagData, sceneEl) => {
     tagElement.addEventListener('mousedown', (event) => {
@@ -25,8 +27,8 @@ export const initDraggable = (tagElement, tagData, sceneEl) => {
 const startDragging = (event, tagData, sceneEl) => {
     isDragging = true;
     draggedTag = tagData;
-    tagSphericalCoords = cartesianToSpherical(tagData.position);
-    lastMousePosition.set(event.clientX, event.clientY);
+    updateMousePosition(event, sceneEl);
+    lastSpherical.setFromVector3(tagData.position);
     event.preventDefault();
     event.stopPropagation();
 };
@@ -34,45 +36,46 @@ const startDragging = (event, tagData, sceneEl) => {
 const dragTag = (event, tagData, sceneEl) => {
     if (!isDragging || !draggedTag) return;
 
+    updateMousePosition(event, sceneEl);
     const camera = sceneEl.camera;
-    const mouseX = (event.clientX / window.innerWidth) * 2 - 1;
-    const mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+    raycaster.setFromCamera(mouse, camera);
 
-    const vector = new THREE.Vector3(mouseX, mouseY, 0.5);
-    vector.unproject(camera);
-    vector.sub(camera.position).normalize();
+    const intersection = new THREE.Vector3();
+    if (raycaster.ray.intersectSphere(sphere, intersection)) {
+        const newSpherical = new THREE.Spherical().setFromVector3(intersection);
 
-    const radius = tagSphericalCoords.radius;
-    const distance = radius / vector.dot(new THREE.Vector3(0, 0, -1));
-    const newPosition = camera.position.clone().add(vector.multiplyScalar(distance));
+        // Calculate the change in spherical coordinates
+        const deltaTheta = newSpherical.theta - lastSpherical.theta;
+        const deltaPhi = newSpherical.phi - lastSpherical.phi;
 
-    // Convert to spherical coordinates
-    const newSpherical = cartesianToSpherical(newPosition);
+        // Update the tag's spherical coordinates
+        const tagSpherical = new THREE.Spherical().setFromVector3(tagData.position);
+        tagSpherical.theta += deltaTheta;
+        tagSpherical.phi += deltaPhi;
 
-    // Maintain the original radius
-    newSpherical.radius = radius;
+        // Ensure phi stays within bounds
+        tagSpherical.phi = Math.max(0.01, Math.min(Math.PI - 0.01, tagSpherical.phi));
 
-    // Allow full 360-degree rotation
-    tagSphericalCoords.theta = newSpherical.theta;
-    tagSphericalCoords.phi = Math.max(0.01, Math.min(Math.PI - 0.01, newSpherical.phi));
+        // Convert back to Cartesian coordinates
+        const newPosition = new THREE.Vector3().setFromSpherical(tagSpherical);
 
-    // Convert back to Cartesian coordinates
-    const finalPosition = sphericalToCartesian(tagSphericalCoords);
+        tagData.position.copy(newPosition);
+        tagData.element.setAttribute('position', newPosition);
 
-    // Update tag position
-    tagData.position.copy(finalPosition);
-    tagData.element.setAttribute('position', finalPosition);
-
-    lastMousePosition.set(event.clientX, event.clientY);
+        lastSpherical.copy(newSpherical);
+    }
 };
 
 const stopDragging = (tagData) => {
     if (isDragging) {
         isDragging = false;
         draggedTag = null;
-        tagSphericalCoords = null;
-
-        // Save the new position
         saveProjectToLocalStorage();
     }
+};
+
+const updateMousePosition = (event, sceneEl) => {
+    const bounds = sceneEl.canvas.getBoundingClientRect();
+    mouse.x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
+    mouse.y = -((event.clientY - bounds.top) / bounds.height) * 2 + 1;
 };
