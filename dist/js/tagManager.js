@@ -170,7 +170,7 @@ const createPlaceholder = (tagData) => {
         }
     });
 
-    initDraggable(placeholderEl, tagData, document.querySelector('a-scene'));
+    initDraggable(placeholderEl, tagData, sceneEl);
 
     sceneEl.appendChild(placeholderEl);
     tagData.element = placeholderEl;
@@ -271,7 +271,7 @@ const createContentElement = (tagData) => {
     contentEl.setAttribute('class', 'tag-element clickable');
     contentEl.setAttribute('look-at', '#camera');
 
-    initDraggable(contentEl, tagData, document.querySelector('a-scene'));
+    initDraggable(contentEl, tagData, sceneEl);
 
     sceneEl.appendChild(contentEl);
     tagData.element = contentEl;
