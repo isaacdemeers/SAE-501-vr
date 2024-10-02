@@ -10,6 +10,7 @@ import {
 } from './uiManager.js';
 import { currentScene, scenes, switchScene } from './sceneManager.js';
 import { generateEntityId, vector3ToObject } from './utilities.js';
+import { saveProjectToLocalStorage } from './storageManager.js';
 
 let placingTag = false;
 let tagPosition = null;
@@ -107,6 +108,8 @@ const confirmTagPlacement = (content) => {
     tagPosition = null;
     placingTagType = null;
     document.getElementById(`add${capitalizeFirstLetter(tagData.type)}Button`).disabled = false;
+
+    saveProjectToLocalStorage(); // Sauvegarde après l'ajout du tag
 };
 
 const selectDestinationScene = (destinationSceneId) => {
@@ -296,6 +299,8 @@ const updateTagContent = (tagData, newContent) => {
     } else if ((tagData.type === 'image' || tagData.type === 'video') && tagData.element) {
         tagData.element.setAttribute('src', newContent);
     }
+
+    saveProjectToLocalStorage(); // Sauvegarde après la modification du contenu du tag
 };
 
 const updateTagDestination = (tagData, newDestinationSceneId) => {
@@ -307,6 +312,8 @@ const updateTagDestination = (tagData, newDestinationSceneId) => {
             labelEl.setAttribute('value', destinationScene ? destinationScene.name : 'Inconnu');
         }
     }
+
+    saveProjectToLocalStorage(); // Sauvegarde après la modification de la destination
 };
 
 const deleteTag = (tagId) => {
@@ -322,6 +329,8 @@ const deleteTag = (tagId) => {
                 }
                 currentScene.tags.splice(tagIndex, 1);
                 updateTagList();
+
+                saveProjectToLocalStorage(); // Sauvegarde après la suppression du tag
             }
         }
     );
@@ -334,6 +343,8 @@ const renameTag = (tagId) => {
             if (newName && newName.trim() !== '') {
                 tagData.name = newName.trim();
                 updateTagList();
+
+                saveProjectToLocalStorage(); // Sauvegarde après le renommage du tag
             }
         });
     }
@@ -345,6 +356,8 @@ const editTagContent = (tagId) => {
         openTextEditModal(tagData.content, (newContent) => {
             if (newContent !== null) {
                 updateTagContent(tagData, newContent);
+
+                saveProjectToLocalStorage(); // Sauvegarde après l'édition du contenu du tag
             }
         });
     }

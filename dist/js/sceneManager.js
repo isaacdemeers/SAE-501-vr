@@ -9,6 +9,7 @@ import {
     skyEl,
     updateTagButtonsState,
 } from './uiManager.js';
+import { saveProjectToLocalStorage, loadProjectFromLocalStorage } from './storageManager.js';
 
 export let scenes = [];
 export let currentScene = null;
@@ -23,6 +24,8 @@ export const addScenesFromAssets = (sceneNames) => {
         const mediaSrc = `assets/${sceneName}`;
         addScene(mediaSrc, sceneName);
     });
+
+    saveProjectToLocalStorage();
 };
 
 const addScene = (mediaSrc, mediaName, sceneDataInput) => {
@@ -180,6 +183,8 @@ const deleteScene = (sceneId) => {
                 updateSceneManagementModal();
 
                 updateTagButtonsState();
+
+                saveProjectToLocalStorage();
             }
         }
     );
@@ -194,15 +199,22 @@ const renameScene = (sceneId) => {
                 updateSceneSelect();
                 updateTagList();
                 updateSceneManagementModal();
+
+                saveProjectToLocalStorage();
             }
         });
     }
 };
 
 export const initializeScene = () => {
-    showNotification('Bienvenue ! Veuillez ajouter des scènes pour commencer.', 'info');
-
-    updateTagButtonsState();
+    const projectData = loadProjectFromLocalStorage();
+    if (projectData) {
+        importProjectData(projectData);
+        showNotification('Projet chargé depuis le stockage local.', 'success');
+    } else {
+        showNotification('Bienvenue ! Veuillez ajouter des scènes pour commencer.', 'info');
+        updateTagButtonsState();
+    }
 };
 
 export const exportProjectData = () => {
@@ -212,7 +224,7 @@ export const exportProjectData = () => {
             const { element, position, ...rest } = tagData;
             return {
                 ...rest,
-                position: position.toArray(),
+                position: [position.x, position.y, position.z],
             };
         });
         sceneCopy.mediaSrc = scene.mediaSrc;
@@ -264,4 +276,6 @@ export const importProjectData = (projectData) => {
     }
 
     updateTagButtonsState();
+
+    saveProjectToLocalStorage();
 };
