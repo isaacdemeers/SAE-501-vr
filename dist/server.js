@@ -25,7 +25,7 @@ app.use(express.static(__dirname));
 
 app.use(express.json());
 
-app.get(['/imagelist', '/imagelist/'], (req, res) => {
+app.get(['/scenelist', '/scenelist/'], (req, res) => {
     const assetsDir = path.join(__dirname, 'assets');
 
     fs.readdir(assetsDir, (err, files) => {
@@ -34,12 +34,12 @@ app.get(['/imagelist', '/imagelist/'], (req, res) => {
             return res.status(500).json({ error: 'Failed to read assets directory' });
         }
 
-        const imageFiles = files.filter((file) => {
+        const sceneFiles = files.filter((file) => {
             const ext = path.extname(file).toLowerCase();
-            return ['.jpg', '.jpeg', '.png', '.gif', '.bmp'].includes(ext);
+            return ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.mp4', '.webm', '.ogg'].includes(ext);
         });
 
-        res.json(imageFiles);
+        res.json(sceneFiles);
     });
 });
 
@@ -61,7 +61,7 @@ app.get(['/medialist', '/medialist/'], (req, res) => {
     });
 });
 
-app.post('/upload', upload.array('images', 20), (req, res) => {
+app.post('/upload', upload.array('scenes', 20), (req, res) => {
     const assetsDir = path.join(__dirname, 'assets');
 
     if (!req.files || req.files.length === 0) {
