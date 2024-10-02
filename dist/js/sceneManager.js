@@ -7,42 +7,55 @@ import {
     openConfirmDeleteModal,
     assetsEl,
     skyEl,
-    updateTagButtonsState, // Import de la fonction
+    updateTagButtonsState,
 } from './uiManager.js';
 
 export let scenes = [];
 export let currentScene = null;
 
-export const addScenesFromAssets = (imageNames) => {
-    if (imageNames.length === 0) {
-        showNotification('No images selected.', 'error');
+export const addScenesFromAssets = (sceneNames) => {
+    if (sceneNames.length === 0) {
+        showNotification('Aucune scène sélectionnée.', 'error');
         return;
     }
 
-    imageNames.forEach((imageName) => {
-        const imageSrc = `assets/${imageName}`;
-        addScene(imageSrc, imageName);
+    sceneNames.forEach((sceneName) => {
+        const mediaSrc = `assets/${sceneName}`;
+        addScene(mediaSrc, sceneName);
     });
 };
 
-const addScene = (imageSrc, imageName, sceneDataInput) => {
+const addScene = (mediaSrc, mediaName, sceneDataInput) => {
     const sceneId = sceneDataInput?.id || generateEntityId('scene');
 
-    imageSrc = sceneDataInput?.imageSrc || imageSrc;
+    mediaSrc = sceneDataInput?.mediaSrc || mediaSrc;
 
-    let imgEl = document.querySelector(`#${CSS.escape(sceneId)}-image`);
-    if (!imgEl) {
-        imgEl = document.createElement('img');
-        imgEl.setAttribute('id', `${sceneId}-image`);
-        imgEl.setAttribute('src', imageSrc);
-        assetsEl.appendChild(imgEl);
+    const isVideo = /\.(mp4|webm|ogg)$/.test(mediaSrc.toLowerCase());
+
+    let mediaEl = document.querySelector(`#${CSS.escape(sceneId)}-media`);
+    if (!mediaEl) {
+        if (isVideo) {
+            mediaEl = document.createElement('video');
+            mediaEl.setAttribute('id', `${sceneId}-media`);
+            mediaEl.setAttribute('src', mediaSrc);
+            mediaEl.setAttribute('crossorigin', 'anonymous');
+            mediaEl.setAttribute('loop', 'true');
+            mediaEl.setAttribute('preload', 'auto');
+            assetsEl.appendChild(mediaEl);
+        } else {
+            mediaEl = document.createElement('img');
+            mediaEl.setAttribute('id', `${sceneId}-media`);
+            mediaEl.setAttribute('src', mediaSrc);
+            assetsEl.appendChild(mediaEl);
+        }
     }
 
     const sceneData = {
         id: sceneId,
-        name: sceneDataInput?.name || imageName || `Scene ${scenes.length + 1}`,
-        image: `#${imgEl.getAttribute('id')}`,
-        imageSrc: imageSrc,
+        name: sceneDataInput?.name || mediaName || `Scene ${scenes.length + 1}`,
+        media: `#${mediaEl.getAttribute('id')}`,
+        mediaSrc: mediaSrc,
+        isVideo: isVideo,
         tags: [],
     };
 
@@ -53,14 +66,32 @@ const addScene = (imageSrc, imageName, sceneDataInput) => {
         switchScene(sceneId);
     }
 
-    updateTagButtonsState(); // Mise à jour de l'état des boutons des tags après ajout d'une scène
+    updateTagButtonsState();
 };
 
 export const switchScene = (sceneId) => {
     const scene = scenes.find((s) => s.id === sceneId);
     if (scene) {
         currentScene = scene;
-        skyEl.setAttribute('material', 'src', scene.image);
+
+        if (scene.isVideo) {
+            skyEl.setAttribute('material', {
+                shader: 'flat',
+                src: scene.media,
+                autoplay: 'true',
+                loop: 'true',
+                side: 'back',
+                transparent: 'false',
+                color: '#FFFFFF',
+            });
+
+            const videoEl = document.querySelector(scene.media);
+            if (videoEl) {
+                videoEl.play();
+            }
+        } else {
+            skyEl.setAttribute('material', 'src', scene.media);
+        }
 
         document.querySelectorAll('.tag-element').forEach((el) => {
             el.parentNode.removeChild(el);
@@ -108,15 +139,15 @@ export const updateSceneManagementModal = () => {
 
 const deleteScene = (sceneId) => {
     openConfirmDeleteModal(
-        'Delete Scene',
-        'Are you sure you want to delete this scene?',
+        'Supprimer la scène',
+        'Êtes-vous sûr de vouloir supprimer cette scène ?',
         () => {
             const sceneIndex = scenes.findIndex((s) => s.id === sceneId);
             if (sceneIndex !== -1) {
                 const scene = scenes.splice(sceneIndex, 1)[0];
-                const imgEl = document.querySelector(scene.image);
-                if (imgEl && imgEl.parentNode) {
-                    assetsEl.removeChild(imgEl);
+                const mediaEl = document.querySelector(scene.media);
+                if (mediaEl && mediaEl.parentNode) {
+                    assetsEl.removeChild(mediaEl);
                 }
 
                 scenes.forEach((s) => {
@@ -148,7 +179,7 @@ const deleteScene = (sceneId) => {
                 updateSceneSelect();
                 updateSceneManagementModal();
 
-                updateTagButtonsState(); // Mise à jour de l'état des boutons des tags après suppression d'une scène
+                updateTagButtonsState();
             }
         }
     );
@@ -157,7 +188,7 @@ const deleteScene = (sceneId) => {
 const renameScene = (sceneId) => {
     const scene = scenes.find((s) => s.id === sceneId);
     if (scene) {
-        openRenameModal('Rename Scene', scene.name, (newName) => {
+        openRenameModal('Renommer la scène', scene.name, (newName) => {
             if (newName && newName.trim() !== '') {
                 scene.name = newName.trim();
                 updateSceneSelect();
@@ -169,9 +200,9 @@ const renameScene = (sceneId) => {
 };
 
 export const initializeScene = () => {
-    showNotification('Welcome! Please add scenes to get started.', 'info');
+    showNotification('Bienvenue ! Veuillez ajouter des scènes pour commencer.', 'info');
 
-    updateTagButtonsState(); // Mise à jour de l'état des boutons des tags lors de l'initialisation
+    updateTagButtonsState();
 };
 
 export const exportProjectData = () => {
@@ -184,8 +215,9 @@ export const exportProjectData = () => {
                 position: position.toArray(),
             };
         });
-        sceneCopy.imageSrc = scene.imageSrc;
-        delete sceneCopy.image;
+        sceneCopy.mediaSrc = scene.mediaSrc;
+        sceneCopy.isVideo = scene.isVideo;
+        delete sceneCopy.media;
         return sceneCopy;
     });
 
@@ -206,8 +238,8 @@ export const importProjectData = (projectData) => {
     resetIdCounters(projectData.idCounters || { scene: 0, tag: 0 });
 
     projectData.scenes.forEach((sceneData) => {
-        const imageSrc = sceneData.imageSrc;
-        addScene(imageSrc, sceneData.name, { ...sceneData, tags: [] });
+        const mediaSrc = sceneData.mediaSrc;
+        addScene(mediaSrc, sceneData.name, { ...sceneData, tags: [] });
     });
 
     projectData.scenes.forEach((sceneData) => {
@@ -231,5 +263,5 @@ export const importProjectData = (projectData) => {
         switchScene(scenes[0].id);
     }
 
-    updateTagButtonsState(); // Mise à jour de l'état des boutons des tags après importation du projet
+    updateTagButtonsState();
 };

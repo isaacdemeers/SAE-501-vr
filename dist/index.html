@@ -169,6 +169,22 @@
         <button class="button button--cancel" id="cancelTextEditButton">Close</button>
     </div>
 
+    <div id="imageSelectionModal" class="modal"></div>
+    <h3 class="modal__title">Sélectionnez les médias à ajouter en tant que scènes</h3>
+    <div class="modal__galery" id="imageGrid"></div>
+
+    <div class="modal__buttonBox">
+        <button class="button button--fit" id="openUploadImagesModalButton"> <img class="button__icon "
+                src="./assets/icons/upload.svg" alt="upload button"></button>
+        <button class="button button--center button--cancel" id="cancelImageSelectionButton">Fermer</button>
+
+        <button class="button button--center button--validate" id="confirmImageSelectionButton">Ajouter les scènes
+            sélectionnées</button>
+    </div>
+
+    </div>
+
+
     <div class="notification" id="notification"></div>
 
     <a-scene>

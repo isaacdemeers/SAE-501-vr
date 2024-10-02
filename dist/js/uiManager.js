@@ -1,3 +1,4 @@
+
 import {
     addScenesFromAssets,
     switchScene,
@@ -5,7 +6,7 @@ import {
     openSceneManagementModal,
     exportProjectData,
     importProjectData,
-    scenes, // Importation de la liste des scènes
+    scenes,
 } from './sceneManager.js';
 import {
     startPlacingTag,
@@ -27,7 +28,7 @@ let textEditCallback = null;
 let imageDeleteCallback = null;
 let mediaDeleteCallback = null;
 
-let selectedImages = [];
+let selectedScenes = [];
 let selectedMedia = null;
 
 export const initializeUI = () => {
@@ -36,7 +37,7 @@ export const initializeUI = () => {
     sceneEl = document.querySelector('a-scene');
     cameraEl = document.querySelector('#camera');
 
-    updateTagButtonsState(); // Initialisation de l'état des boutons des tags
+    updateTagButtonsState();
 };
 
 export const showNotification = (message, type = 'info') => {
@@ -55,21 +56,21 @@ export const showNotification = (message, type = 'info') => {
 
 export const setupEventListeners = () => {
     document.getElementById('addScenesButton').addEventListener('click', () => {
-        openImageSelectionModal();
+        openSceneSelectionModal();
     });
 
     document
         .getElementById('confirmImageSelectionButton')
         .addEventListener('click', () => {
-            addScenesFromAssets(selectedImages);
-            selectedImages = [];
+            addScenesFromAssets(selectedScenes);
+            selectedScenes = [];
             document.getElementById('imageSelectionModal').style.display = 'none';
         });
 
     document
         .getElementById('cancelImageSelectionButton')
         .addEventListener('click', () => {
-            selectedImages = [];
+            selectedScenes = [];
             document.getElementById('imageSelectionModal').style.display = 'none';
         });
 
@@ -81,10 +82,10 @@ export const setupEventListeners = () => {
     document.getElementById('uploadImagesButton').addEventListener('click', () => {
         const files = document.getElementById('imageUploadInput').files;
         if (files.length === 0) {
-            showNotification('No files selected.', 'error');
+            showNotification('Aucun fichier sélectionné.', 'error');
             return;
         }
-        uploadImages(files);
+        uploadScenes(files);
     });
 
     document.getElementById('cancelUploadImagesButton').addEventListener('click', () => {
@@ -152,7 +153,7 @@ export const setupEventListeners = () => {
     document.getElementById('uploadMediaButton').addEventListener('click', () => {
         const files = document.getElementById('mediaUploadInput').files;
         if (files.length === 0) {
-            showNotification('No files selected.', 'error');
+            showNotification('Aucun fichier sélectionné.', 'error');
             return;
         }
         uploadMedia(files);
@@ -273,43 +274,57 @@ export const setupEventListeners = () => {
     });
 };
 
-const openImageSelectionModal = () => {
-    fetch('/imagelist')
+const openSceneSelectionModal = () => {
+    fetch('/scenelist')
         .then((response) => response.json())
-        .then((imageList) => {
+        .then((sceneList) => {
             const imageGrid = document.getElementById('imageGrid');
             imageGrid.innerHTML = '';
-            selectedImages = [];
+            selectedScenes = [];
 
-            imageList.forEach((imageName) => {
-                const imageItem = document.createElement('div');
-                imageItem.classList.add('image-item');
+            sceneList.forEach((sceneName) => {
+                const sceneItem = document.createElement('div');
+                sceneItem.classList.add('image-item');
 
-                const imgEl = document.createElement('img');
-                imgEl.src = `assets/${encodeURIComponent(imageName)}`;
-                imgEl.alt = imageName;
+                const isVideo = /\.(mp4|webm|ogg)$/.test(sceneName.toLowerCase());
+
+                let mediaEl;
+                if (isVideo) {
+                    mediaEl = document.createElement('video');
+                    mediaEl.src = `assets/${encodeURIComponent(sceneName)}`;
+                    mediaEl.alt = sceneName;
+                    mediaEl.width = 100;
+                    mediaEl.height = 100;
+                    mediaEl.muted = true;
+                    mediaEl.loop = true;
+                    mediaEl.play();
+                } else {
+                    mediaEl = document.createElement('img');
+                    mediaEl.src = `assets/${encodeURIComponent(sceneName)}`;
+                    mediaEl.alt = sceneName;
+                }
 
                 const deleteIcon = document.createElement('span');
                 deleteIcon.classList.add('delete-icon');
                 deleteIcon.innerHTML = '&times;';
-                deleteIcon.title = 'Delete Image';
+                deleteIcon.title = 'Supprimer la scène';
 
                 deleteIcon.addEventListener('click', (event) => {
                     event.stopPropagation();
-                    openConfirmImageDeleteModal(imageName, imageItem);
+                    openConfirmImageDeleteModal(sceneName, sceneItem);
                 });
 
-                imageItem.appendChild(deleteIcon);
-                imageItem.appendChild(imgEl);
-                imageGrid.appendChild(imageItem);
+                sceneItem.appendChild(deleteIcon);
+                sceneItem.appendChild(mediaEl);
+                imageGrid.appendChild(sceneItem);
 
-                imageItem.addEventListener('click', () => {
-                    if (selectedImages.includes(imageName)) {
-                        selectedImages = selectedImages.filter((name) => name !== imageName);
-                        imageItem.classList.remove('selected');
+                sceneItem.addEventListener('click', () => {
+                    if (selectedScenes.includes(sceneName)) {
+                        selectedScenes = selectedScenes.filter((name) => name !== sceneName);
+                        sceneItem.classList.remove('selected');
                     } else {
-                        selectedImages.push(imageName);
-                        imageItem.classList.add('selected');
+                        selectedScenes.push(sceneName);
+                        sceneItem.classList.add('selected');
                     }
                 });
             });
@@ -317,15 +332,15 @@ const openImageSelectionModal = () => {
             document.getElementById('imageSelectionModal').style.display = 'flex';
         })
         .catch((error) => {
-            console.error('Error fetching image list:', error);
-            showNotification('Failed to load images.', 'error');
+            console.error('Error fetching scene list:', error);
+            showNotification('Échec du chargement des scènes.', 'error');
         });
 };
 
-const uploadImages = (files) => {
+const uploadScenes = (files) => {
     const formData = new FormData();
     for (const file of files) {
-        formData.append('images', file);
+        formData.append('scenes', file);
     }
 
     fetch('/upload', {
@@ -337,14 +352,14 @@ const uploadImages = (files) => {
             if (data.error) {
                 showNotification(data.error, 'error');
             } else {
-                showNotification('Images uploaded successfully.', 'success');
+                showNotification('Scènes téléchargées avec succès.', 'success');
                 document.getElementById('uploadImagesModal').style.display = 'none';
-                openImageSelectionModal();
+                openSceneSelectionModal();
             }
         })
         .catch((error) => {
-            console.error('Error uploading images:', error);
-            showNotification('Failed to upload images.', 'error');
+            console.error('Error uploading scenes:', error);
+            showNotification('Échec du téléchargement des scènes.', 'error');
         });
 };
 
@@ -381,7 +396,7 @@ export const openMediaSelectionModal = () => {
                 const deleteIcon = document.createElement('span');
                 deleteIcon.classList.add('delete-icon');
                 deleteIcon.innerHTML = '&times;';
-                deleteIcon.title = 'Delete Media';
+                deleteIcon.title = 'Supprimer le média';
 
                 deleteIcon.addEventListener('click', (event) => {
                     event.stopPropagation();
@@ -403,7 +418,7 @@ export const openMediaSelectionModal = () => {
         })
         .catch((error) => {
             console.error('Error fetching media list:', error);
-            showNotification('Failed to load media.', 'error');
+            showNotification('Échec du chargement des médias.', 'error');
         });
 };
 
@@ -422,19 +437,19 @@ const uploadMedia = (files) => {
             if (data.error) {
                 showNotification(data.error, 'error');
             } else {
-                showNotification('Media uploaded successfully.', 'success');
+                showNotification('Médias téléchargés avec succès.', 'success');
                 document.getElementById('uploadMediaModal').style.display = 'none';
                 openMediaSelectionModal();
             }
         })
         .catch((error) => {
             console.error('Error uploading media:', error);
-            showNotification('Failed to upload media.', 'error');
+            showNotification('Échec du téléchargement des médias.', 'error');
         });
 };
 
 const openConfirmImageDeleteModal = (imageName, imageItem) => {
-    document.getElementById('confirmImageDeleteMessage').textContent = `Are you sure you want to delete the image "${imageName}"?`;
+    document.getElementById('confirmImageDeleteMessage').textContent = `Êtes-vous sûr de vouloir supprimer "${imageName}" ?`;
     imageDeleteCallback = () => {
         deleteImage(imageName, imageItem);
     };
@@ -454,20 +469,20 @@ const deleteImage = (imageName, imageItem) => {
             if (data.error) {
                 showNotification(data.error, 'error');
             } else {
-                showNotification('Image deleted successfully.', 'success');
+                showNotification('Image supprimée avec succès.', 'success');
                 imageItem.remove();
 
-                selectedImages = selectedImages.filter((name) => name !== imageName);
+                selectedScenes = selectedScenes.filter((name) => name !== imageName);
             }
         })
         .catch((error) => {
             console.error('Error deleting image:', error);
-            showNotification('Failed to delete image.', 'error');
+            showNotification('Échec de la suppression de l\'image.', 'error');
         });
 };
 
 const openConfirmMediaDeleteModal = (mediaName, mediaItem) => {
-    document.getElementById('confirmMediaDeleteMessage').textContent = `Are you sure you want to delete the media "${mediaName}"?`;
+    document.getElementById('confirmMediaDeleteMessage').textContent = `Êtes-vous sûr de vouloir supprimer "${mediaName}" ?`;
     mediaDeleteCallback = () => {
         deleteMedia(mediaName, mediaItem);
     };
@@ -487,7 +502,7 @@ const deleteMedia = (mediaName, mediaItem) => {
             if (data.error) {
                 showNotification(data.error, 'error');
             } else {
-                showNotification('Media deleted successfully.', 'success');
+                showNotification('Média supprimé avec succès.', 'success');
                 mediaItem.remove();
 
                 if (selectedMedia === mediaName) {
@@ -497,7 +512,7 @@ const deleteMedia = (mediaName, mediaItem) => {
         })
         .catch((error) => {
             console.error('Error deleting media:', error);
-            showNotification('Failed to delete media.', 'error');
+            showNotification('Échec de la suppression du média.', 'error');
         });
 };
 
@@ -534,7 +549,7 @@ const downloadJSON = (data, filename) => {
 const handleProjectImport = (event) => {
     const file = event.target.files[0];
     if (!file) {
-        showNotification('No file selected.', 'error');
+        showNotification('Aucun fichier sélectionné.', 'error');
         return;
     }
 
@@ -543,10 +558,10 @@ const handleProjectImport = (event) => {
         try {
             const projectData = JSON.parse(e.target.result);
             importProjectData(projectData);
-            showNotification('Project imported successfully.', 'success');
+            showNotification('Projet importé avec succès.', 'success');
         } catch (err) {
             console.error('Error parsing project file:', err);
-            showNotification('Failed to import project.', 'error');
+            showNotification('Échec de l\'importation du projet.', 'error');
         }
     };
     reader.readAsText(file);
