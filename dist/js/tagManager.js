@@ -191,7 +191,8 @@ const createContentElement = (tagData) => {
         contentEl.setAttribute('width', 1);
         contentEl.setAttribute('depth', 0.1);
         contentEl.setAttribute('class', 'tag-element clickable');
-        contentEl.setAttribute('look-at', '#camera');
+        // Remove or comment out the following line:
+        // contentEl.setAttribute('look-at', '#camera');
         contentEl.setAttribute('position', vector3ToObject(tagData.position));
 
         let clickTimeout;
