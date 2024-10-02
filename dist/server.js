@@ -1,38 +1,31 @@
-// server.js
-
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
-const multer = require('multer'); // Middleware for handling file uploads
+const multer = require('multer');
 
 const app = express();
 
-// Configure multer for file uploads
 const upload = multer({
-    dest: path.join(__dirname, 'uploads'), // Temporary upload directory
+    dest: path.join(__dirname, 'uploads'),
     limits: {
-        fileSize: 10 * 1024 * 1024, // Limit file size to 10MB
+        fileSize: 100 * 1024 * 1024,
     },
     fileFilter: (req, file, cb) => {
-        // Accept images only
-        const filetypes = /jpeg|jpg|png|gif|bmp/;
+        const filetypes = /jpeg|jpg|png|gif|bmp|mp4|webm|ogg/;
         const mimetype = filetypes.test(file.mimetype.toLowerCase());
         const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
         if (mimetype && extname) {
             return cb(null, true);
         }
-        cb(new Error('Only image files are allowed!'));
+        cb(new Error('Only image and video files are allowed!'));
     },
 });
 
-// Serve static files from the project root
 app.use(express.static(__dirname));
 
-// Middleware to parse JSON bodies
 app.use(express.json());
 
-// Endpoint to get the list of images in /assets
-app.get('/imagelist', (req, res) => {
+app.get(['/imagelist', '/imagelist/'], (req, res) => {
     const assetsDir = path.join(__dirname, 'assets');
 
     fs.readdir(assetsDir, (err, files) => {
@@ -41,7 +34,6 @@ app.get('/imagelist', (req, res) => {
             return res.status(500).json({ error: 'Failed to read assets directory' });
         }
 
-        // Filter out non-image files
         const imageFiles = files.filter((file) => {
             const ext = path.extname(file).toLowerCase();
             return ['.jpg', '.jpeg', '.png', '.gif', '.bmp'].includes(ext);
@@ -51,15 +43,31 @@ app.get('/imagelist', (req, res) => {
     });
 });
 
-// Endpoint to handle image uploads
-app.post('/upload', upload.array('images', 10), (req, res) => {
+app.get(['/medialist', '/medialist/'], (req, res) => {
+    const assetsDir = path.join(__dirname, 'assets');
+
+    fs.readdir(assetsDir, (err, files) => {
+        if (err) {
+            console.error('Error reading assets directory:', err);
+            return res.status(500).json({ error: 'Failed to read assets directory' });
+        }
+
+        const mediaFiles = files.filter((file) => {
+            const ext = path.extname(file).toLowerCase();
+            return ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.mp4', '.webm', '.ogg'].includes(ext);
+        });
+
+        res.json(mediaFiles);
+    });
+});
+
+app.post('/upload', upload.array('images', 20), (req, res) => {
     const assetsDir = path.join(__dirname, 'assets');
 
     if (!req.files || req.files.length === 0) {
         return res.status(400).json({ error: 'No files were uploaded.' });
     }
 
-    // Move uploaded files from temporary directory to /assets
     req.files.forEach((file) => {
         const tempPath = file.path;
         const targetPath = path.join(assetsDir, file.originalname);
@@ -74,7 +82,27 @@ app.post('/upload', upload.array('images', 10), (req, res) => {
     res.json({ message: 'Files uploaded successfully.' });
 });
 
-// Endpoint to delete an image
+app.post('/uploadmedia', upload.array('media', 20), (req, res) => {
+    const assetsDir = path.join(__dirname, 'assets');
+
+    if (!req.files || req.files.length === 0) {
+        return res.status(400).json({ error: 'No files were uploaded.' });
+    }
+
+    req.files.forEach((file) => {
+        const tempPath = file.path;
+        const targetPath = path.join(assetsDir, file.originalname);
+
+        fs.rename(tempPath, targetPath, (err) => {
+            if (err) {
+                console.error('Error saving uploaded file:', err);
+            }
+        });
+    });
+
+    res.json({ message: 'Media uploaded successfully.' });
+});
+
 app.delete('/deleteimage', (req, res) => {
     const imageName = req.body.imageName;
     if (!imageName) {
@@ -93,7 +121,24 @@ app.delete('/deleteimage', (req, res) => {
     });
 });
 
-// Start the server
+app.delete('/deletemedia', (req, res) => {
+    const mediaName = req.body.mediaName;
+    if (!mediaName) {
+        return res.status(400).json({ error: 'No media name provided.' });
+    }
+
+    const mediaPath = path.join(__dirname, 'assets', mediaName);
+
+    fs.unlink(mediaPath, (err) => {
+        if (err) {
+            console.error('Error deleting media:', err);
+            return res.status(500).json({ error: 'Failed to delete media.' });
+        }
+
+        res.json({ message: 'Media deleted successfully.' });
+    });
+});
+
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
     console.log(`Server is running at http://localhost:${port}`);

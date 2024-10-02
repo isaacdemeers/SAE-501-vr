@@ -1,14 +1,14 @@
 // Utility function to generate unique IDs
 let idCounters = {
     scene: 0,
-    door: 0,
-    text: 0,
+    tag: 0,
 };
 
 export const generateEntityId = (prefix) => {
     idCounters[prefix] = (idCounters[prefix] || 0) + 1;
     return `${prefix}-${idCounters[prefix]}`;
 };
+
 
 export const resetIdCounters = (newIdCounters) => {
     idCounters = newIdCounters;

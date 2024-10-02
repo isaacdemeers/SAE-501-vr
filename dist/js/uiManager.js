@@ -5,18 +5,15 @@ import {
     openSceneManagementModal,
     exportProjectData,
     importProjectData,
+    scenes, // Importation de la liste des scènes
 } from './sceneManager.js';
 import {
-    startPlacingDoor,
-    handleSkyClickForDoor,
-    cancelPlacingDoor,
-} from './doorManager.js';
-import {
-    startPlacingText,
-    handleSkyClickForText,
+    startPlacingTag,
+    handleSkyClickForTag,
+    cancelPlacingTag,
     confirmTextPlacement,
-    cancelPlacingText,
-} from './textManager.js';
+    confirmMediaSelection,
+} from './tagManager.js';
 
 export let assetsEl;
 export let skyEl;
@@ -25,16 +22,21 @@ export let cameraEl;
 
 let renameCallback = null;
 let deleteCallback = null;
+let textEditCallback = null;
 
 let imageDeleteCallback = null;
+let mediaDeleteCallback = null;
 
 let selectedImages = [];
+let selectedMedia = null;
 
 export const initializeUI = () => {
     assetsEl = document.querySelector('#assets');
     skyEl = document.querySelector('#sky');
     sceneEl = document.querySelector('a-scene');
     cameraEl = document.querySelector('#camera');
+
+    updateTagButtonsState(); // Initialisation de l'état des boutons des tags
 };
 
 export const showNotification = (message, type = 'info') => {
@@ -89,23 +91,30 @@ export const setupEventListeners = () => {
         document.getElementById('uploadImagesModal').style.display = 'none';
     });
 
-    document.getElementById('placeDoorButton').addEventListener('click', () => {
-        startPlacingDoor();
+    document.getElementById('addDoorButton').addEventListener('click', () => {
+        startPlacingTag('door');
     });
 
     document.getElementById('addTextButton').addEventListener('click', () => {
-        startPlacingText();
+        startPlacingTag('text');
+    });
+
+    document.getElementById('addImageButton').addEventListener('click', () => {
+        startPlacingTag('image');
+    });
+
+    document.getElementById('addVideoButton').addEventListener('click', () => {
+        startPlacingTag('video');
     });
 
     skyEl.addEventListener('click', (event) => {
-        handleSkyClickForDoor(event);
-        handleSkyClickForText(event);
+        handleSkyClickForTag(event);
     });
 
     document
         .getElementById('cancelDoorPlacementButton')
         .addEventListener('click', () => {
-            cancelPlacingDoor();
+            cancelPlacingTag();
             document.getElementById('doorPlacementModal').style.display = 'none';
         });
 
@@ -118,9 +127,40 @@ export const setupEventListeners = () => {
     document
         .getElementById('cancelTextPlacementButton')
         .addEventListener('click', () => {
-            cancelPlacingText();
+            cancelPlacingTag();
             document.getElementById('textPlacementModal').style.display = 'none';
         });
+
+    document
+        .getElementById('confirmMediaSelectionButton')
+        .addEventListener('click', () => {
+            confirmMediaSelection(selectedMedia);
+        });
+
+    document
+        .getElementById('cancelMediaSelectionButton')
+        .addEventListener('click', () => {
+            cancelPlacingTag();
+            document.getElementById('mediaSelectionModal').style.display = 'none';
+        });
+
+    document.getElementById('openUploadMediaModalButton').addEventListener('click', () => {
+        document.getElementById('mediaUploadInput').value = '';
+        document.getElementById('uploadMediaModal').style.display = 'flex';
+    });
+
+    document.getElementById('uploadMediaButton').addEventListener('click', () => {
+        const files = document.getElementById('mediaUploadInput').files;
+        if (files.length === 0) {
+            showNotification('No files selected.', 'error');
+            return;
+        }
+        uploadMedia(files);
+    });
+
+    document.getElementById('cancelUploadMediaButton').addEventListener('click', () => {
+        document.getElementById('uploadMediaModal').style.display = 'none';
+    });
 
     const sceneSelect = document.getElementById('sceneSelect');
     sceneSelect.addEventListener('change', () => {
@@ -200,6 +240,37 @@ export const setupEventListeners = () => {
             imageDeleteCallback = null;
             document.getElementById('confirmImageDeleteModal').style.display = 'none';
         });
+
+    document
+        .getElementById('confirmMediaDeleteButton')
+        .addEventListener('click', () => {
+            if (mediaDeleteCallback) {
+                mediaDeleteCallback();
+                mediaDeleteCallback = null;
+                document.getElementById('confirmMediaDeleteModal').style.display = 'none';
+            }
+        });
+
+    document
+        .getElementById('cancelMediaDeleteButton')
+        .addEventListener('click', () => {
+            mediaDeleteCallback = null;
+            document.getElementById('confirmMediaDeleteModal').style.display = 'none';
+        });
+
+    document.getElementById('confirmTextEditButton').addEventListener('click', () => {
+        if (textEditCallback) {
+            const newContent = document.getElementById('textEditInput').value.trim();
+            textEditCallback(newContent);
+            textEditCallback = null;
+            document.getElementById('textEditModal').style.display = 'none';
+        }
+    });
+
+    document.getElementById('cancelTextEditButton').addEventListener('click', () => {
+        textEditCallback = null;
+        document.getElementById('textEditModal').style.display = 'none';
+    });
 };
 
 const openImageSelectionModal = () => {
@@ -277,6 +348,91 @@ const uploadImages = (files) => {
         });
 };
 
+export const openMediaSelectionModal = () => {
+    fetch('/medialist')
+        .then((response) => response.json())
+        .then((mediaList) => {
+            const mediaGrid = document.getElementById('mediaGrid');
+            mediaGrid.innerHTML = '';
+            selectedMedia = null;
+
+            mediaList.forEach((mediaName) => {
+                const mediaItem = document.createElement('div');
+                mediaItem.classList.add('image-item');
+
+                const isVideo = /\.(mp4|webm|ogg)$/.test(mediaName.toLowerCase());
+
+                let mediaEl;
+                if (isVideo) {
+                    mediaEl = document.createElement('video');
+                    mediaEl.src = `assets/${encodeURIComponent(mediaName)}`;
+                    mediaEl.alt = mediaName;
+                    mediaEl.width = 100;
+                    mediaEl.height = 100;
+                    mediaEl.muted = true;
+                    mediaEl.loop = true;
+                    mediaEl.play();
+                } else {
+                    mediaEl = document.createElement('img');
+                    mediaEl.src = `assets/${encodeURIComponent(mediaName)}`;
+                    mediaEl.alt = mediaName;
+                }
+
+                const deleteIcon = document.createElement('span');
+                deleteIcon.classList.add('delete-icon');
+                deleteIcon.innerHTML = '&times;';
+                deleteIcon.title = 'Delete Media';
+
+                deleteIcon.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    openConfirmMediaDeleteModal(mediaName, mediaItem);
+                });
+
+                mediaItem.appendChild(deleteIcon);
+                mediaItem.appendChild(mediaEl);
+                mediaGrid.appendChild(mediaItem);
+
+                mediaItem.addEventListener('click', () => {
+                    selectedMedia = mediaName;
+                    Array.from(mediaGrid.children).forEach((child) => child.classList.remove('selected'));
+                    mediaItem.classList.add('selected');
+                });
+            });
+
+            document.getElementById('mediaSelectionModal').style.display = 'flex';
+        })
+        .catch((error) => {
+            console.error('Error fetching media list:', error);
+            showNotification('Failed to load media.', 'error');
+        });
+};
+
+const uploadMedia = (files) => {
+    const formData = new FormData();
+    for (const file of files) {
+        formData.append('media', file);
+    }
+
+    fetch('/uploadmedia', {
+        method: 'POST',
+        body: formData,
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.error) {
+                showNotification(data.error, 'error');
+            } else {
+                showNotification('Media uploaded successfully.', 'success');
+                document.getElementById('uploadMediaModal').style.display = 'none';
+                openMediaSelectionModal();
+            }
+        })
+        .catch((error) => {
+            console.error('Error uploading media:', error);
+            showNotification('Failed to upload media.', 'error');
+        });
+};
+
 const openConfirmImageDeleteModal = (imageName, imageItem) => {
     document.getElementById('confirmImageDeleteMessage').textContent = `Are you sure you want to delete the image "${imageName}"?`;
     imageDeleteCallback = () => {
@@ -308,6 +464,58 @@ const deleteImage = (imageName, imageItem) => {
             console.error('Error deleting image:', error);
             showNotification('Failed to delete image.', 'error');
         });
+};
+
+const openConfirmMediaDeleteModal = (mediaName, mediaItem) => {
+    document.getElementById('confirmMediaDeleteMessage').textContent = `Are you sure you want to delete the media "${mediaName}"?`;
+    mediaDeleteCallback = () => {
+        deleteMedia(mediaName, mediaItem);
+    };
+    document.getElementById('confirmMediaDeleteModal').style.display = 'flex';
+};
+
+const deleteMedia = (mediaName, mediaItem) => {
+    fetch(`/deletemedia`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ mediaName }),
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.error) {
+                showNotification(data.error, 'error');
+            } else {
+                showNotification('Media deleted successfully.', 'success');
+                mediaItem.remove();
+
+                if (selectedMedia === mediaName) {
+                    selectedMedia = null;
+                }
+            }
+        })
+        .catch((error) => {
+            console.error('Error deleting media:', error);
+            showNotification('Failed to delete media.', 'error');
+        });
+};
+
+export const updateTagButtonsState = () => {
+    const hasScenes = scenes.length > 0;
+    const tagButtons = [
+        document.getElementById('addDoorButton'),
+        document.getElementById('addTextButton'),
+        document.getElementById('addImageButton'),
+        document.getElementById('addVideoButton'),
+    ];
+    tagButtons.forEach((button) => {
+        if (hasScenes) {
+            button.disabled = false;
+        } else {
+            button.disabled = true;
+        }
+    });
 };
 
 const downloadJSON = (data, filename) => {
@@ -378,6 +586,24 @@ export const createListItem = (data, type, actions) => {
         buttonsDiv.appendChild(renameBtn);
     }
 
+    if (actions.onEditContent && data.type === 'text') {
+        const editBtn = document.createElement('button');
+        const editIcon = document.createElement('img');
+
+        editBtn.classList.add('button', 'button--square');
+
+        editBtn.addEventListener('click', () => {
+            actions.onEditContent();
+        });
+
+        editIcon.src = './assets/icons/edit.svg'; // Assurez-vous que cette icône existe dans vos assets
+        editIcon.alt = 'edit content button';
+        editIcon.classList.add('button__icon', 'button__icon--small');
+
+        editBtn.appendChild(editIcon);
+        buttonsDiv.appendChild(editBtn);
+    }
+
     if (actions.onDelete) {
         const deleteBtn = document.createElement('button');
         const deleteIcon = document.createElement('img');
@@ -388,14 +614,14 @@ export const createListItem = (data, type, actions) => {
         });
 
         deleteIcon.src = './assets/icons/trash.svg';
-        deleteIcon.alt = 'manage scene button';
+        deleteIcon.alt = 'delete button';
         deleteIcon.classList.add('button__icon', 'button__icon--small');
 
         deleteBtn.appendChild(deleteIcon);
         buttonsDiv.appendChild(deleteBtn);
     }
-    console.log(type);
-    if (type === 'door' && actions.destinationOptions) {
+
+    if (type === 'tag' && data.type === 'door' && actions.onDestinationChange) {
         const destinationSelect = document.createElement('select');
         const img = document.createElement('img');
 
@@ -435,51 +661,19 @@ export const createListItem = (data, type, actions) => {
         content.appendChild(buttonsDiv);
         li.appendChild(content);
         li.appendChild(destinationSelectBox);
-
-    }
-
-    if (type === 'text' && actions.onContentChange) {
-        // const editContentBtn = document.createElement('button');
-        // editContentBtn.classList.add('cat__list__item__select');
-
-        // editContentBtn.textContent = 'Edit Text';
-
-        const editContentBtn = document.createElement('button');
-        const textIcon = document.createElement('img');
-
-        editContentBtn.classList.add('button', 'button--square');
-        editContentBtn.addEventListener('click', () => {
-            const newContent = prompt('Enter new text content:', data.content);
-            if (newContent !== null && newContent.trim() !== '') {
-                actions.onContentChange(newContent.trim());
-            }
-        });
-
-        textIcon.src = './assets/icons/forms.svg';
-        textIcon.alt = 'rename button';
-        textIcon.classList.add('button__icon', 'button__icon--small');
-
-
-        editContentBtn.appendChild(textIcon);
-        buttonsDiv.appendChild(editContentBtn);
-
+    } else {
         content.appendChild(text);
         content.appendChild(buttonsDiv);
         li.appendChild(content);
     }
-
-    if (type === 'scene') {
-
-
-        content.appendChild(text);
-        content.appendChild(buttonsDiv);
-        li.appendChild(content);
-    }
-
-
-
 
     return li;
+};
+
+export const openTextEditModal = (currentContent, callback) => {
+    document.getElementById('textEditInput').value = currentContent;
+    textEditCallback = callback;
+    document.getElementById('textEditModal').style.display = 'flex';
 };
 
 export const openRenameModal = (title, currentName, callback) => {

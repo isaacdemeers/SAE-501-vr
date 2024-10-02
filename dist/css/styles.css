@@ -486,6 +486,11 @@ table {
   background-color: var(--color-ui-validate);
   justify-content: center;
 }
+.button:disabled {
+  opacity: 0.5;
+  background-color: var(--color-neutral-300);
+  cursor: default;
+}
 .button__icon--small {
   width: 1rem;
   height: 1rem;

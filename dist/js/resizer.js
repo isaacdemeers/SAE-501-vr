@@ -24,7 +24,7 @@ resizer.addEventListener('mousedown', (e) => {
 function resize(e) {
     const newWidth = originalWidth + (e.clientX - originalMouseX);
 
-    if (newWidth >= 200 && newWidth <= 400) {
+    if (newWidth >= 265 && newWidth <= 400) {
         resizableDiv.style.width = newWidth + 'px';
     }
 }
