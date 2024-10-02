@@ -16,6 +16,8 @@ import {
     confirmMediaSelection,
 } from './tagManager.js';
 
+import { clearLocalStorage } from './storageManager.js';
+
 export let assetsEl;
 export let skyEl;
 export let sceneEl;
@@ -273,40 +275,16 @@ export const setupEventListeners = () => {
         document.getElementById('textEditModal').style.display = 'none';
     });
 
-    document.getElementById('exportStandaloneButton').addEventListener('click', () => {
-        exportStandaloneProject();
+
+
+    document.getElementById('clearLocalStorageButton').addEventListener('click', () => {
+        if (confirm('Êtes-vous sûr de vouloir effacer le stockage local ? Cette action est irréversible.')) {
+            clearLocalStorage();
+            showNotification('Le stockage local a été effacé.', 'success');
+        }
     });
 };
 
-export const exportStandaloneProject = () => {
-    const projectData = exportProjectData();
-
-    fetch('/exportstandalone', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(projectData)
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('La réponse réseau n\'est pas correcte');
-            }
-            return response.blob();
-        })
-        .then(blob => {
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'standalone_project.zip';
-            a.click();
-            window.URL.revokeObjectURL(url);
-        })
-        .catch(error => {
-            console.error('Erreur lors de l\'exportation du projet standalone:', error);
-            showNotification('Échec de l\'exportation du projet standalone.', 'error');
-        });
-};
 
 const openSceneSelectionModal = () => {
     fetch('/scenelist')
