@@ -16,6 +16,7 @@ import {
     confirmMediaSelection,
 } from './tagManager.js';
 
+
 import { clearLocalStorage } from './storageManager.js';
 
 export let assetsEl;

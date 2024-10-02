@@ -109,7 +109,7 @@ const confirmTagPlacement = (content) => {
     placingTagType = null;
     document.getElementById(`add${capitalizeFirstLetter(tagData.type)}Button`).disabled = false;
 
-    saveProjectToLocalStorage(); // Sauvegarde après l'ajout du tag
+    saveProjectToLocalStorage();
 };
 
 const selectDestinationScene = (destinationSceneId) => {
@@ -300,7 +300,7 @@ const updateTagContent = (tagData, newContent) => {
         tagData.element.setAttribute('src', newContent);
     }
 
-    saveProjectToLocalStorage(); // Sauvegarde après la modification du contenu du tag
+    saveProjectToLocalStorage();
 };
 
 const updateTagDestination = (tagData, newDestinationSceneId) => {
@@ -313,7 +313,7 @@ const updateTagDestination = (tagData, newDestinationSceneId) => {
         }
     }
 
-    saveProjectToLocalStorage(); // Sauvegarde après la modification de la destination
+    saveProjectToLocalStorage();
 };
 
 const deleteTag = (tagId) => {
@@ -330,7 +330,7 @@ const deleteTag = (tagId) => {
                 currentScene.tags.splice(tagIndex, 1);
                 updateTagList();
 
-                saveProjectToLocalStorage(); // Sauvegarde après la suppression du tag
+                saveProjectToLocalStorage();
             }
         }
     );
@@ -344,7 +344,7 @@ const renameTag = (tagId) => {
                 tagData.name = newName.trim();
                 updateTagList();
 
-                saveProjectToLocalStorage(); // Sauvegarde après le renommage du tag
+                saveProjectToLocalStorage();
             }
         });
     }
@@ -357,7 +357,7 @@ const editTagContent = (tagId) => {
             if (newContent !== null) {
                 updateTagContent(tagData, newContent);
 
-                saveProjectToLocalStorage(); // Sauvegarde après l'édition du contenu du tag
+                saveProjectToLocalStorage();
             }
         });
     }
