@@ -274,6 +274,21 @@ const createContentElement = (tagData) => {
 
     initDraggable(contentEl, tagData, sceneEl);
 
+    // Add this new event listener
+    let clickTimeout;
+    contentEl.addEventListener('click', (event) => {
+        if (clickTimeout) {
+            clearTimeout(clickTimeout);
+            clickTimeout = null;
+            onTagDoubleClick(tagData);
+        } else {
+            clickTimeout = setTimeout(() => {
+                clickTimeout = null;
+                // Single click does nothing now
+            }, 300); // 300ms delay
+        }
+    });
+
     sceneEl.appendChild(contentEl);
     tagData.element = contentEl;
 };
