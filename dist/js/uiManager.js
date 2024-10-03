@@ -1,4 +1,3 @@
-
 import {
     addScenesFromAssets,
     switchScene,
@@ -14,6 +13,7 @@ import {
     cancelPlacingTag,
     confirmTextPlacement,
     confirmMediaSelection,
+    initializeTagManager,
 } from './tagManager.js';
 
 
@@ -41,6 +41,7 @@ export const initializeUI = () => {
     cameraEl = document.querySelector('#camera');
 
     updateTagButtonsState();
+    initializeTagManager(); // Add this line to initialize the tag manager
 };
 
 export const showNotification = (message, type = 'info') => {
@@ -58,6 +59,7 @@ export const showNotification = (message, type = 'info') => {
 };
 
 export const setupEventListeners = () => {
+    // Only add event listeners that are not already set up in createListItem
     document.getElementById('addScenesButton').addEventListener('click', () => {
         openSceneSelectionModal();
     });
@@ -276,16 +278,15 @@ export const setupEventListeners = () => {
         document.getElementById('textEditModal').style.display = 'none';
     });
 
-
-
     document.getElementById('clearLocalStorageButton').addEventListener('click', () => {
         if (confirm('Êtes-vous sûr de vouloir effacer le stockage local ? Cette action est irréversible.')) {
             clearLocalStorage();
             showNotification('Le stockage local a été effacé.', 'success');
         }
     });
-};
 
+    // Add other global event listeners here
+};
 
 const openSceneSelectionModal = () => {
     fetch('/scenelist')
@@ -583,119 +584,104 @@ const handleProjectImport = (event) => {
 
 export const createListItem = (data, type, actions) => {
     const li = document.createElement('li');
+    li.classList.add('cat__list__item');
+    li.dataset.tagId = data.id;
+    li.dataset.tagType = data.type;
+
     const content = document.createElement('div');
     const buttonsDiv = document.createElement('div');
     const text = document.createElement('p');
 
-    li.classList.add('cat__list__item');
-
     content.classList.add('cat__list__item__content');
-
     buttonsDiv.classList.add('cat__list__item__content__buttons');
-
     text.classList.add('cat__list__item__content__title');
     text.textContent = data.name;
 
+    content.appendChild(text);
+    content.appendChild(buttonsDiv);
+    li.appendChild(content);
+
+    // Add existing buttons (rename, edit, delete)
     if (actions.onRename) {
-        const renameBtn = document.createElement('button');
-        const renameIcon = document.createElement('img');
-
-        renameBtn.classList.add('button', 'button--square');
-
-        renameBtn.addEventListener('click', () => {
-            actions.onRename();
-        });
-
-        renameIcon.src = './assets/icons/photo-edit.svg';
-        renameIcon.alt = 'rename button';
-        renameIcon.classList.add('button__icon', 'button__icon--small');
-
-        renameBtn.appendChild(renameIcon);
+        const renameBtn = createButton('photo-edit.svg', 'rename button', actions.onRename);
         buttonsDiv.appendChild(renameBtn);
     }
 
     if (actions.onEditContent && data.type === 'text') {
-        const editBtn = document.createElement('button');
-        const editIcon = document.createElement('img');
-
-        editBtn.classList.add('button', 'button--square');
-
-        editBtn.addEventListener('click', () => {
-            actions.onEditContent();
-        });
-
-        editIcon.src = './assets/icons/edit.svg'; // Assurez-vous que cette icône existe dans vos assets
-        editIcon.alt = 'edit content button';
-        editIcon.classList.add('button__icon', 'button__icon--small');
-
-        editBtn.appendChild(editIcon);
+        const editBtn = createButton('edit.svg', 'edit content button', actions.onEditContent);
         buttonsDiv.appendChild(editBtn);
     }
 
     if (actions.onDelete) {
-        const deleteBtn = document.createElement('button');
-        const deleteIcon = document.createElement('img');
-
-        deleteBtn.classList.add('button', 'button--square');
-        deleteBtn.addEventListener('click', () => {
-            actions.onDelete();
-        });
-
-        deleteIcon.src = './assets/icons/trash.svg';
-        deleteIcon.alt = 'delete button';
-        deleteIcon.classList.add('button__icon', 'button__icon--small');
-
-        deleteBtn.appendChild(deleteIcon);
+        const deleteBtn = createButton('trash.svg', 'delete button', actions.onDelete);
         buttonsDiv.appendChild(deleteBtn);
     }
 
+    // Add destination select for door tags
     if (type === 'tag' && data.type === 'door' && actions.onDestinationChange) {
-        const destinationSelect = document.createElement('select');
-        const img = document.createElement('img');
-
-        destinationSelect.classList.add('cat__list__item__select');
-
-        img.src = './assets/icons/corner-down-right.svg';
-        img.classList.add('button__icon');
-
-        actions.destinationOptions.forEach((scene) => {
-            const option = document.createElement('option');
-            option.value = scene.id;
-            option.textContent = scene.name;
-            if (scene.id === data.destinationSceneId) {
-                option.selected = true;
-            }
-            destinationSelect.appendChild(option);
-        });
-
-        destinationSelect.addEventListener('change', () => {
-            const newDestinationSceneId = destinationSelect.value;
-            actions.onDestinationChange(newDestinationSceneId);
-        });
-
-        const destinationSelectBox = document.createElement('div');
-        const destinationSelectText = document.createElement('p');
-
-        destinationSelectText.textContent = 'To';
-        destinationSelectText.classList.add('cat__list__item__select__title');
-
-        destinationSelectBox.classList.add('cat__list__item__select__box');
-        destinationSelectBox.appendChild(img);
-
-        destinationSelectBox.appendChild(destinationSelectText);
-        destinationSelectBox.appendChild(destinationSelect);
-
-        content.appendChild(text);
-        content.appendChild(buttonsDiv);
-        li.appendChild(content);
+        const destinationSelectBox = createDestinationSelect(data, actions);
         li.appendChild(destinationSelectBox);
-    } else {
-        content.appendChild(text);
-        content.appendChild(buttonsDiv);
-        li.appendChild(content);
+    }
+
+    // Add tag selection functionality
+    if (type === 'tag' && actions.onSelect) {
+        li.style.cursor = 'pointer';
+        content.addEventListener('click', (event) => {
+            if (!event.target.closest('button') && !event.target.closest('select')) {
+                actions.onSelect();
+                li.style.backgroundColor = data.type === 'door' ? '#e0e0e0' : '#f0f0f0';
+            }
+        });
     }
 
     return li;
+};
+
+const createButton = (iconSrc, altText, onClick) => {
+    const button = document.createElement('button');
+    const icon = document.createElement('img');
+    button.classList.add('button', 'button--square');
+    icon.src = `./assets/icons/${iconSrc}`;
+    icon.alt = altText;
+    icon.classList.add('button__icon', 'button__icon--small');
+    button.appendChild(icon);
+    button.addEventListener('click', onClick);
+    return button;
+};
+
+const createDestinationSelect = (data, actions) => {
+    const destinationSelectBox = document.createElement('div');
+    const destinationSelect = document.createElement('select');
+    const img = document.createElement('img');
+    const destinationSelectText = document.createElement('p');
+
+    destinationSelectBox.classList.add('cat__list__item__select__box');
+    destinationSelect.classList.add('cat__list__item__select');
+    img.src = './assets/icons/corner-down-right.svg';
+    img.classList.add('button__icon');
+    destinationSelectText.textContent = 'To';
+    destinationSelectText.classList.add('cat__list__item__select__title');
+
+    actions.destinationOptions.forEach((scene) => {
+        const option = document.createElement('option');
+        option.value = scene.id;
+        option.textContent = scene.name;
+        if (scene.id === data.destinationSceneId) {
+            option.selected = true;
+        }
+        destinationSelect.appendChild(option);
+    });
+
+    destinationSelect.addEventListener('change', () => {
+        const newDestinationSceneId = destinationSelect.value;
+        actions.onDestinationChange(newDestinationSceneId);
+    });
+
+    destinationSelectBox.appendChild(img);
+    destinationSelectBox.appendChild(destinationSelectText);
+    destinationSelectBox.appendChild(destinationSelect);
+
+    return destinationSelectBox;
 };
 
 export const openTextEditModal = (currentContent, callback) => {

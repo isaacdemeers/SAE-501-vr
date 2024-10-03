@@ -16,6 +16,17 @@ import { initDraggable } from './dragManager.js';
 let placingTag = false;
 let tagPosition = null;
 let placingTagType = null;
+let selectedTag = null;
+let highlightEl = null;
+
+// Move this function to the top level of the file, outside of any other function
+const updateTagPosition = (tagData, newPosition) => {
+    tagData.position.copy(newPosition);
+    tagData.element.setAttribute('position', newPosition);
+    if (selectedTag === tagData) {
+        highlightTagInScene(tagData);
+    }
+};
 
 export const startPlacingTag = (type) => {
     if (!currentScene) {
@@ -145,6 +156,9 @@ export const createTag = (tagData) => {
         createPlaceholder(tagData);
         tagData.contentVisible = false;
     }
+
+    // Pass updateTagPosition to initDraggable
+    initDraggable(tagData.element, tagData, sceneEl, updateTagPosition);
 };
 
 const createPlaceholder = (tagData) => {
@@ -191,8 +205,6 @@ const createContentElement = (tagData) => {
         contentEl.setAttribute('width', 1);
         contentEl.setAttribute('depth', 0.1);
         contentEl.setAttribute('class', 'tag-element clickable');
-        // Remove or comment out the following line:
-        // contentEl.setAttribute('look-at', '#camera');
         contentEl.setAttribute('position', vector3ToObject(tagData.position));
 
         let clickTimeout;
@@ -272,9 +284,8 @@ const createContentElement = (tagData) => {
     contentEl.setAttribute('class', 'tag-element clickable');
     contentEl.setAttribute('look-at', '#camera');
 
-    initDraggable(contentEl, tagData, sceneEl);
+    initDraggable(contentEl, tagData, sceneEl, updateTagPosition);
 
-    // Add this new event listener
     let clickTimeout;
     contentEl.addEventListener('click', (event) => {
         if (clickTimeout) {
@@ -311,6 +322,9 @@ const onTagDoubleClick = (tagData) => {
         createContentElement(tagData);
         tagData.contentVisible = true;
     }
+
+    // Reinitialize draggable functionality
+    initDraggable(tagData.element, tagData, sceneEl, updateTagPosition);
 };
 
 export const updateTagList = () => {
@@ -329,6 +343,7 @@ export const updateTagList = () => {
             },
             onEditContent: () => editTagContent(tagData.id),
             destinationOptions: scenes.filter((s) => s.id !== currentScene.id),
+            onSelect: () => selectTag(tagData),
         });
         fragment.appendChild(li);
     });
@@ -373,7 +388,13 @@ const deleteTag = (tagId) => {
                 currentScene.tags.splice(tagIndex, 1);
                 updateTagList();
 
-                saveProjectToLocalStorage();
+                // Remove highlight if the deleted tag was selected
+                if (selectedTag && selectedTag.id === tagId) {
+                    removeHighlightFromScene();
+                    selectedTag = null;
+                }
+
+                saveProjectToLocalStorage(); // Sauvegarde après la suppression du tag
             }
         }
     );
@@ -408,4 +429,73 @@ const editTagContent = (tagId) => {
 
 const capitalizeFirstLetter = (string) => {
     return string ? string.charAt(0).toUpperCase() + string.slice(1) : '';
+};
+
+export const selectTag = (tagData) => {
+    if (selectedTag) {
+        deselectTag();
+    }
+    selectedTag = tagData;
+    highlightTagInScene(tagData);
+
+    // Highlight the corresponding item in the sidebar
+    const tagListItem = document.querySelector(`[data-tag-id="${tagData.id}"]`);
+    if (tagListItem) {
+        tagListItem.style.backgroundColor = tagData.type === 'door' ? '#e0e0e0' : '#f0f0f0';
+    }
+};
+
+const deselectTag = () => {
+    if (selectedTag) {
+        removeHighlightFromScene();
+        const tagListItem = document.querySelector(`[data-tag-id="${selectedTag.id}"]`);
+        if (tagListItem) {
+            tagListItem.style.backgroundColor = '';
+        }
+        selectedTag = null;
+    }
+};
+
+const highlightTagInScene = (tagData) => {
+    removeHighlightFromScene();
+    highlightEl = document.createElement('a-entity');
+    highlightEl.setAttribute('geometry', {
+        primitive: 'circle',
+        radius: 0.8, // Increased from 0.6 to 0.8
+    });
+    highlightEl.setAttribute('material', {
+        color: '#FFFFFF',
+        opacity: 0.5,
+        side: 'double',
+    });
+    highlightEl.setAttribute('position', tagData.position);
+    highlightEl.setAttribute('look-at', '#camera');
+    highlightEl.setAttribute('class', 'tag-highlight');
+    sceneEl.appendChild(highlightEl);
+
+    const updateHighlightPosition = () => {
+        if (highlightEl && tagData.element) {
+            highlightEl.setAttribute('position', tagData.element.getAttribute('position'));
+        }
+    };
+    tagData.element.addEventListener('componentchanged', (event) => {
+        if (event.detail.name === 'position') {
+            updateHighlightPosition();
+        }
+    });
+};
+
+const removeHighlightFromScene = () => {
+    if (highlightEl) {
+        sceneEl.removeChild(highlightEl);
+        highlightEl = null;
+    }
+};
+
+export const initializeTagManager = () => {
+    sceneEl.addEventListener('click', (event) => {
+        if (!event.target.classList.contains('tag-element') && !event.target.closest('.cat__list__item')) {
+            deselectTag();
+        }
+    });
 };
