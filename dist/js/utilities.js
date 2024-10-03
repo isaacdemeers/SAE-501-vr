@@ -32,3 +32,11 @@ AFRAME.registerComponent('look-at', {
         this.el.object3D.lookAt(this.targetEl.object3D.position);
     },
 });
+
+export const cartesianToSpherical = (cartesian) => {
+    return new THREE.Spherical().setFromVector3(cartesian);
+};
+
+export const sphericalToCartesian = (spherical) => {
+    return new THREE.Vector3().setFromSpherical(spherical);
+};

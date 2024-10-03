@@ -11,6 +11,7 @@ import {
 import { currentScene, scenes, switchScene } from './sceneManager.js';
 import { generateEntityId, vector3ToObject } from './utilities.js';
 import { saveProjectToLocalStorage } from './storageManager.js';
+import { initDraggable } from './dragManager.js';
 
 let placingTag = false;
 let tagPosition = null;
@@ -155,7 +156,21 @@ const createPlaceholder = (tagData) => {
     placeholderEl.setAttribute('tag-id', tagData.id);
     placeholderEl.setAttribute('look-at', '#camera');
 
-    placeholderEl.addEventListener('click', () => onTagClick(tagData));
+    let clickTimeout;
+    placeholderEl.addEventListener('click', (event) => {
+        if (clickTimeout) {
+            clearTimeout(clickTimeout);
+            clickTimeout = null;
+            onTagDoubleClick(tagData);
+        } else {
+            clickTimeout = setTimeout(() => {
+                clickTimeout = null;
+                // Single click does nothing now
+            }, 300); // 300ms delay
+        }
+    });
+
+    initDraggable(placeholderEl, tagData, sceneEl);
 
     sceneEl.appendChild(placeholderEl);
     tagData.element = placeholderEl;
@@ -176,11 +191,24 @@ const createContentElement = (tagData) => {
         contentEl.setAttribute('width', 1);
         contentEl.setAttribute('depth', 0.1);
         contentEl.setAttribute('class', 'tag-element clickable');
-        contentEl.setAttribute('look-at', '#camera');
+        // Remove or comment out the following line:
+        // contentEl.setAttribute('look-at', '#camera');
         contentEl.setAttribute('position', vector3ToObject(tagData.position));
-        contentEl.addEventListener('click', () => {
-            switchScene(tagData.destinationSceneId);
+
+        let clickTimeout;
+        contentEl.addEventListener('click', (event) => {
+            if (clickTimeout) {
+                clearTimeout(clickTimeout);
+                clickTimeout = null;
+                switchScene(tagData.destinationSceneId);
+            } else {
+                clickTimeout = setTimeout(() => {
+                    clickTimeout = null;
+                    // Single click does nothing now
+                }, 300); // 300ms delay
+            }
         });
+
         const destinationScene = scenes.find((s) => s.id === tagData.destinationSceneId);
         const labelEl = document.createElement('a-text');
         labelEl.setAttribute('value', destinationScene ? destinationScene.name : 'Inconnu');
@@ -190,9 +218,6 @@ const createContentElement = (tagData) => {
         labelEl.setAttribute('position', { x: 0, y: 1.5, z: 0 });
         labelEl.setAttribute('look-at', '#camera');
         contentEl.appendChild(labelEl);
-        tagData.element = contentEl;
-        sceneEl.appendChild(contentEl);
-        return;
     } else if (tagData.type === 'image') {
         contentEl = document.createElement('a-image');
         contentEl.setAttribute('src', tagData.content);
@@ -242,17 +267,35 @@ const createContentElement = (tagData) => {
             }
         });
     }
+
     contentEl.setAttribute('position', vector3ToObject(tagData.position));
     contentEl.setAttribute('class', 'tag-element clickable');
     contentEl.setAttribute('look-at', '#camera');
-    contentEl.addEventListener('click', () => onTagClick(tagData));
+
+    initDraggable(contentEl, tagData, sceneEl);
+
+    // Add this new event listener
+    let clickTimeout;
+    contentEl.addEventListener('click', (event) => {
+        if (clickTimeout) {
+            clearTimeout(clickTimeout);
+            clickTimeout = null;
+            onTagDoubleClick(tagData);
+        } else {
+            clickTimeout = setTimeout(() => {
+                clickTimeout = null;
+                // Single click does nothing now
+            }, 300); // 300ms delay
+        }
+    });
+
     sceneEl.appendChild(contentEl);
     tagData.element = contentEl;
 };
 
-const onTagClick = (tagData) => {
+const onTagDoubleClick = (tagData) => {
     if (tagData.type === 'door') {
-        return;
+        return; // Door interaction is handled in createContentElement
     }
 
     if (tagData.contentVisible) {
