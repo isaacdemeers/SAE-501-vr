@@ -16,6 +16,8 @@ import { initDraggable } from './dragManager.js';
 let placingTag = false;
 let tagPosition = null;
 let placingTagType = null;
+let selectedTag = null;
+let highlightEl = null;
 
 export const startPlacingTag = (type) => {
     if (!currentScene) {
@@ -191,8 +193,6 @@ const createContentElement = (tagData) => {
         contentEl.setAttribute('width', 1);
         contentEl.setAttribute('depth', 0.1);
         contentEl.setAttribute('class', 'tag-element clickable');
-        // Remove or comment out the following line:
-        // contentEl.setAttribute('look-at', '#camera');
         contentEl.setAttribute('position', vector3ToObject(tagData.position));
 
         let clickTimeout;
@@ -272,9 +272,8 @@ const createContentElement = (tagData) => {
     contentEl.setAttribute('class', 'tag-element clickable');
     contentEl.setAttribute('look-at', '#camera');
 
-    initDraggable(contentEl, tagData, sceneEl);
+    initDraggable(contentEl, tagData, sceneEl, updateTagPosition);
 
-    // Add this new event listener
     let clickTimeout;
     contentEl.addEventListener('click', (event) => {
         if (clickTimeout) {
@@ -329,6 +328,7 @@ export const updateTagList = () => {
             },
             onEditContent: () => editTagContent(tagData.id),
             destinationOptions: scenes.filter((s) => s.id !== currentScene.id),
+            onSelect: () => selectTag(tagData),
         });
         fragment.appendChild(li);
     });
@@ -408,4 +408,97 @@ const editTagContent = (tagId) => {
 
 const capitalizeFirstLetter = (string) => {
     return string ? string.charAt(0).toUpperCase() + string.slice(1) : '';
+};
+
+const selectTag = (tagData) => {
+    if (selectedTag) {
+        deselectTag();
+    }
+    selectedTag = tagData;
+    highlightTagInScene(tagData);
+    rotateToFaceTag(tagData);
+};
+
+const deselectTag = () => {
+    if (selectedTag) {
+        removeHighlightFromScene();
+        const tagListItem = document.querySelector(`[data-tag-id="${selectedTag.id}"]`);
+        if (tagListItem) {
+            tagListItem.style.backgroundColor = '';
+        }
+        selectedTag = null;
+    }
+};
+
+const highlightTagInScene = (tagData) => {
+    removeHighlightFromScene();
+    highlightEl = document.createElement('a-entity');
+    highlightEl.setAttribute('geometry', {
+        primitive: 'circle',
+        radius: 0.6,
+    });
+    highlightEl.setAttribute('material', {
+        color: '#FFFFFF',
+        opacity: 0.5,
+        side: 'double',
+    });
+    highlightEl.setAttribute('position', tagData.position);
+    highlightEl.setAttribute('look-at', '#camera');
+    highlightEl.setAttribute('class', 'tag-highlight');
+    sceneEl.appendChild(highlightEl);
+
+    const updateHighlightPosition = () => {
+        if (highlightEl && tagData.element) {
+            highlightEl.setAttribute('position', tagData.element.getAttribute('position'));
+        }
+    };
+    tagData.element.addEventListener('componentchanged', (event) => {
+        if (event.detail.name === 'position') {
+            updateHighlightPosition();
+        }
+    });
+};
+
+const removeHighlightFromScene = () => {
+    if (highlightEl) {
+        sceneEl.removeChild(highlightEl);
+        highlightEl = null;
+    }
+};
+
+const rotateToFaceTag = (tagData) => {
+    const camera = document.querySelector('#camera');
+    const cameraPosition = camera.object3D.position;
+    const tagPosition = new THREE.Vector3(
+        tagData.position.x,
+        tagData.position.y,
+        tagData.position.z
+    );
+
+    const direction = new THREE.Vector3().subVectors(tagPosition, cameraPosition).normalize();
+    const rotation = new THREE.Euler().setFromQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, -1), direction));
+
+    camera.setAttribute('animation__rotation', {
+        property: 'rotation',
+        to: `${THREE.MathUtils.radToDeg(rotation.x)} ${THREE.MathUtils.radToDeg(rotation.y)} 0`,
+        dur: 500,
+        easing: 'easeInOutQuad'
+    });
+};
+
+export const initializeTagManager = () => {
+    sceneEl.addEventListener('click', (event) => {
+        if (!event.target.classList.contains('tag-element') && !event.target.closest('.cat__list__item')) {
+            deselectTag();
+        }
+    });
+};
+
+// Instead, add this function to update the tag position
+const updateTagPosition = (tagData, newPosition) => {
+    tagData.position.copy(newPosition);
+    tagData.element.setAttribute('position', newPosition);
+    if (selectedTag === tagData) {
+        highlightTagInScene(tagData);
+    }
 };

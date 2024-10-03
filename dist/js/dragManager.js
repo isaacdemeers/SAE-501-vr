@@ -11,14 +11,14 @@ const scrollSpeed = 0.1;
 // Add this variable to store the current distance
 let currentTagDistance = 5;
 
-export const initDraggable = (tagElement, tagData, sceneEl) => {
+export const initDraggable = (tagElement, tagData, sceneEl, updateTagPosition) => {
     tagElement.addEventListener('mousedown', (event) => {
         startDragging(event, tagData, sceneEl);
     });
 
     sceneEl.addEventListener('mousemove', (event) => {
         if (isDragging) {
-            dragTag(event, sceneEl);
+            dragTag(event, sceneEl, updateTagPosition);
         }
     });
 
@@ -28,7 +28,7 @@ export const initDraggable = (tagElement, tagData, sceneEl) => {
 
     sceneEl.addEventListener('wheel', (event) => {
         if (isDragging) {
-            adjustTagDistance(event, sceneEl);
+            adjustTagDistance(event, sceneEl, updateTagPosition);
         }
     });
 };
@@ -48,7 +48,7 @@ const startDragging = (event, tagData, sceneEl) => {
     event.stopPropagation();
 };
 
-const dragTag = (event, sceneEl) => {
+const dragTag = (event, sceneEl, updateTagPosition) => {
     if (!isDragging || !draggedTag) return;
 
     const camera = sceneEl.camera;
@@ -62,9 +62,7 @@ const dragTag = (event, sceneEl) => {
 
     const intersection = new THREE.Vector3();
     if (raycaster.ray.intersectSphere(sphere, intersection)) {
-        // Update tag position
-        draggedTag.position.copy(intersection);
-        draggedTag.element.setAttribute('position', intersection);
+        updateTagPosition(draggedTag, intersection);
 
         // Update orientation
         if (draggedTag.type === 'door') {
@@ -90,7 +88,7 @@ const stopDragging = () => {
     }
 };
 
-const adjustTagDistance = (event, sceneEl) => {
+const adjustTagDistance = (event, sceneEl, updateTagPosition) => {
     if (!isDragging || !draggedTag) return;
 
     event.preventDefault();
@@ -107,8 +105,7 @@ const adjustTagDistance = (event, sceneEl) => {
     const newPosition = cameraPosition.clone().add(direction.multiplyScalar(currentTagDistance));
 
     // Update tag position
-    draggedTag.position.copy(newPosition);
-    draggedTag.element.setAttribute('position', newPosition);
+    updateTagPosition(draggedTag, newPosition);
 
     // Update orientation
     if (draggedTag.type === 'door') {
