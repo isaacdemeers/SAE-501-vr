@@ -19,6 +19,15 @@ let placingTagType = null;
 let selectedTag = null;
 let highlightEl = null;
 
+// Move this function to the top level of the file, outside of any other function
+const updateTagPosition = (tagData, newPosition) => {
+    tagData.position.copy(newPosition);
+    tagData.element.setAttribute('position', newPosition);
+    if (selectedTag === tagData) {
+        highlightTagInScene(tagData);
+    }
+};
+
 export const startPlacingTag = (type) => {
     if (!currentScene) {
         showNotification('Veuillez d\'abord ajouter une scène.', 'error');
@@ -147,6 +156,9 @@ export const createTag = (tagData) => {
         createPlaceholder(tagData);
         tagData.contentVisible = false;
     }
+
+    // Pass updateTagPosition to initDraggable
+    initDraggable(tagData.element, tagData, sceneEl, updateTagPosition);
 };
 
 const createPlaceholder = (tagData) => {
@@ -310,6 +322,9 @@ const onTagDoubleClick = (tagData) => {
         createContentElement(tagData);
         tagData.contentVisible = true;
     }
+
+    // Reinitialize draggable functionality
+    initDraggable(tagData.element, tagData, sceneEl, updateTagPosition);
 };
 
 export const updateTagList = () => {
@@ -373,6 +388,12 @@ const deleteTag = (tagId) => {
                 currentScene.tags.splice(tagIndex, 1);
                 updateTagList();
 
+                // Remove highlight if the deleted tag was selected
+                if (selectedTag && selectedTag.id === tagId) {
+                    removeHighlightFromScene();
+                    selectedTag = null;
+                }
+
                 saveProjectToLocalStorage(); // Sauvegarde après la suppression du tag
             }
         }
@@ -416,7 +437,6 @@ const selectTag = (tagData) => {
     }
     selectedTag = tagData;
     highlightTagInScene(tagData);
-    rotateToFaceTag(tagData);
 };
 
 const deselectTag = () => {
@@ -435,7 +455,7 @@ const highlightTagInScene = (tagData) => {
     highlightEl = document.createElement('a-entity');
     highlightEl.setAttribute('geometry', {
         primitive: 'circle',
-        radius: 0.6,
+        radius: 0.8, // Increased from 0.6 to 0.8
     });
     highlightEl.setAttribute('material', {
         color: '#FFFFFF',
@@ -466,39 +486,10 @@ const removeHighlightFromScene = () => {
     }
 };
 
-const rotateToFaceTag = (tagData) => {
-    const camera = document.querySelector('#camera');
-    const cameraPosition = camera.object3D.position;
-    const tagPosition = new THREE.Vector3(
-        tagData.position.x,
-        tagData.position.y,
-        tagData.position.z
-    );
-
-    const direction = new THREE.Vector3().subVectors(tagPosition, cameraPosition).normalize();
-    const rotation = new THREE.Euler().setFromQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, -1), direction));
-
-    camera.setAttribute('animation__rotation', {
-        property: 'rotation',
-        to: `${THREE.MathUtils.radToDeg(rotation.x)} ${THREE.MathUtils.radToDeg(rotation.y)} 0`,
-        dur: 500,
-        easing: 'easeInOutQuad'
-    });
-};
-
 export const initializeTagManager = () => {
     sceneEl.addEventListener('click', (event) => {
         if (!event.target.classList.contains('tag-element') && !event.target.closest('.cat__list__item')) {
             deselectTag();
         }
     });
-};
-
-// Instead, add this function to update the tag position
-const updateTagPosition = (tagData, newPosition) => {
-    tagData.position.copy(newPosition);
-    tagData.element.setAttribute('position', newPosition);
-    if (selectedTag === tagData) {
-        highlightTagInScene(tagData);
-    }
 };

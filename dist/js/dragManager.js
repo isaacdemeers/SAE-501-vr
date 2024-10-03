@@ -6,19 +6,21 @@ let lastMouseX = 0;
 let lastMouseY = 0;
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
-const scrollSpeed = 0.1;
+const scrollSpeed = 0.05;
 
-// Add this variable to store the current distance
 let currentTagDistance = 5;
+let updateTagPositionCallback = null;
 
 export const initDraggable = (tagElement, tagData, sceneEl, updateTagPosition) => {
+    updateTagPositionCallback = updateTagPosition;
+
     tagElement.addEventListener('mousedown', (event) => {
         startDragging(event, tagData, sceneEl);
     });
 
     sceneEl.addEventListener('mousemove', (event) => {
         if (isDragging) {
-            dragTag(event, sceneEl, updateTagPosition);
+            dragTag(event, sceneEl);
         }
     });
 
@@ -28,7 +30,7 @@ export const initDraggable = (tagElement, tagData, sceneEl, updateTagPosition) =
 
     sceneEl.addEventListener('wheel', (event) => {
         if (isDragging) {
-            adjustTagDistance(event, sceneEl, updateTagPosition);
+            adjustTagDistance(event, sceneEl);
         }
     });
 };
@@ -48,7 +50,7 @@ const startDragging = (event, tagData, sceneEl) => {
     event.stopPropagation();
 };
 
-const dragTag = (event, sceneEl, updateTagPosition) => {
+const dragTag = (event, sceneEl) => {
     if (!isDragging || !draggedTag) return;
 
     const camera = sceneEl.camera;
@@ -56,22 +58,18 @@ const dragTag = (event, sceneEl, updateTagPosition) => {
     raycaster.setFromCamera(mouse, camera);
 
     const cameraPosition = camera.getWorldPosition(new THREE.Vector3());
-
-    // Use the stored currentTagDistance instead of recalculating
     const sphere = new THREE.Sphere(cameraPosition, currentTagDistance);
 
     const intersection = new THREE.Vector3();
     if (raycaster.ray.intersectSphere(sphere, intersection)) {
-        updateTagPosition(draggedTag, intersection);
+        updateTagPositionCallback(draggedTag, intersection);
 
         // Update orientation
         if (draggedTag.type === 'door') {
-            // Make doors face outward from the center
             const normal = intersection.clone().normalize();
             const lookAtPoint = intersection.clone().add(normal);
             draggedTag.element.object3D.lookAt(lookAtPoint);
         } else {
-            // Make other tags face the center
             draggedTag.element.object3D.lookAt(new THREE.Vector3(0, 0, 0));
         }
     }
@@ -88,15 +86,13 @@ const stopDragging = () => {
     }
 };
 
-const adjustTagDistance = (event, sceneEl, updateTagPosition) => {
+const adjustTagDistance = (event, sceneEl) => {
     if (!isDragging || !draggedTag) return;
 
     event.preventDefault();
 
     const distance = event.deltaY * scrollSpeed;
     currentTagDistance += distance;
-
-    // Ensure the tag doesn't get too close to the camera or too far away
     currentTagDistance = Math.max(1, Math.min(currentTagDistance, 20));
 
     const camera = sceneEl.camera;
@@ -104,8 +100,7 @@ const adjustTagDistance = (event, sceneEl, updateTagPosition) => {
     const direction = draggedTag.position.clone().sub(cameraPosition).normalize();
     const newPosition = cameraPosition.clone().add(direction.multiplyScalar(currentTagDistance));
 
-    // Update tag position
-    updateTagPosition(draggedTag, newPosition);
+    updateTagPositionCallback(draggedTag, newPosition);
 
     // Update orientation
     if (draggedTag.type === 'door') {
