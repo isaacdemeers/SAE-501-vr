@@ -6,7 +6,10 @@ let lastMouseX = 0;
 let lastMouseY = 0;
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
-const sphere = new THREE.Sphere(new THREE.Vector3(0, 0, 0), 5); // Assuming a sphere radius of 5
+const scrollSpeed = 0.1;
+
+// Add this variable to store the current distance
+let currentTagDistance = 5;
 
 export const initDraggable = (tagElement, tagData, sceneEl) => {
     tagElement.addEventListener('mousedown', (event) => {
@@ -22,6 +25,12 @@ export const initDraggable = (tagElement, tagData, sceneEl) => {
     sceneEl.addEventListener('mouseup', () => {
         stopDragging();
     });
+
+    sceneEl.addEventListener('wheel', (event) => {
+        if (isDragging) {
+            adjustTagDistance(event, sceneEl);
+        }
+    });
 };
 
 const startDragging = (event, tagData, sceneEl) => {
@@ -29,6 +38,12 @@ const startDragging = (event, tagData, sceneEl) => {
     draggedTag = tagData;
     lastMouseX = event.clientX;
     lastMouseY = event.clientY;
+
+    // Set the initial distance when starting to drag
+    const camera = sceneEl.camera;
+    const cameraPosition = camera.getWorldPosition(new THREE.Vector3());
+    currentTagDistance = cameraPosition.distanceTo(tagData.position);
+
     event.preventDefault();
     event.stopPropagation();
 };
@@ -39,6 +54,11 @@ const dragTag = (event, sceneEl) => {
     const camera = sceneEl.camera;
     updateMousePosition(event, sceneEl);
     raycaster.setFromCamera(mouse, camera);
+
+    const cameraPosition = camera.getWorldPosition(new THREE.Vector3());
+
+    // Use the stored currentTagDistance instead of recalculating
+    const sphere = new THREE.Sphere(cameraPosition, currentTagDistance);
 
     const intersection = new THREE.Vector3();
     if (raycaster.ray.intersectSphere(sphere, intersection)) {
@@ -66,10 +86,40 @@ const stopDragging = () => {
     if (isDragging) {
         isDragging = false;
         draggedTag = null;
-
-        // Save the new position
         saveProjectToLocalStorage();
     }
+};
+
+const adjustTagDistance = (event, sceneEl) => {
+    if (!isDragging || !draggedTag) return;
+
+    event.preventDefault();
+
+    const distance = event.deltaY * scrollSpeed;
+    currentTagDistance += distance;
+
+    // Ensure the tag doesn't get too close to the camera or too far away
+    currentTagDistance = Math.max(1, Math.min(currentTagDistance, 20));
+
+    const camera = sceneEl.camera;
+    const cameraPosition = camera.getWorldPosition(new THREE.Vector3());
+    const direction = draggedTag.position.clone().sub(cameraPosition).normalize();
+    const newPosition = cameraPosition.clone().add(direction.multiplyScalar(currentTagDistance));
+
+    // Update tag position
+    draggedTag.position.copy(newPosition);
+    draggedTag.element.setAttribute('position', newPosition);
+
+    // Update orientation
+    if (draggedTag.type === 'door') {
+        const normal = newPosition.clone().normalize();
+        const lookAtPoint = newPosition.clone().add(normal);
+        draggedTag.element.object3D.lookAt(lookAtPoint);
+    } else {
+        draggedTag.element.object3D.lookAt(new THREE.Vector3(0, 0, 0));
+    }
+
+    saveProjectToLocalStorage();
 };
 
 const updateMousePosition = (event, sceneEl) => {
