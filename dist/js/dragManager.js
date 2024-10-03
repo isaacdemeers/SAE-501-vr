@@ -1,5 +1,5 @@
 import { saveProjectToLocalStorage } from './storageManager.js';
-import { selectTag } from './tagManager.js'; // Add this import
+import { selectTag } from './tagManager.js';
 
 let isDragging = false;
 let draggedTag = null;
@@ -42,12 +42,10 @@ const startDragging = (event, tagData, sceneEl) => {
     lastMouseX = event.clientX;
     lastMouseY = event.clientY;
 
-    // Set the initial distance when starting to drag
     const camera = sceneEl.camera;
     const cameraPosition = camera.getWorldPosition(new THREE.Vector3());
     currentTagDistance = cameraPosition.distanceTo(tagData.position);
 
-    // Select the tag in the sidebar when starting to drag
     selectTag(tagData);
 
     event.preventDefault();
@@ -68,7 +66,6 @@ const dragTag = (event, sceneEl) => {
     if (raycaster.ray.intersectSphere(sphere, intersection)) {
         updateTagPositionCallback(draggedTag, intersection);
 
-        // Update orientation
         if (draggedTag.type === 'door') {
             const normal = intersection.clone().normalize();
             const lookAtPoint = intersection.clone().add(normal);
@@ -106,7 +103,6 @@ const adjustTagDistance = (event, sceneEl) => {
 
     updateTagPositionCallback(draggedTag, newPosition);
 
-    // Update orientation
     if (draggedTag.type === 'door') {
         const normal = newPosition.clone().normalize();
         const lookAtPoint = newPosition.clone().add(normal);

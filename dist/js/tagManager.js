@@ -19,7 +19,6 @@ let placingTagType = null;
 let selectedTag = null;
 let highlightEl = null;
 
-// Move this function to the top level of the file, outside of any other function
 const updateTagPosition = (tagData, newPosition) => {
     tagData.position.copy(newPosition);
     tagData.element.setAttribute('position', newPosition);
@@ -157,18 +156,42 @@ export const createTag = (tagData) => {
         tagData.contentVisible = false;
     }
 
-    // Pass updateTagPosition to initDraggable
     initDraggable(tagData.element, tagData, sceneEl, updateTagPosition);
 };
 
 const createPlaceholder = (tagData) => {
-    const placeholderEl = document.createElement('a-sphere');
-    placeholderEl.setAttribute('radius', 0.5);
-    placeholderEl.setAttribute('color', '#FFC107');
-    placeholderEl.setAttribute('position', vector3ToObject(tagData.position));
-    placeholderEl.setAttribute('class', 'tag-element clickable');
-    placeholderEl.setAttribute('tag-id', tagData.id);
+    // const placeholderEl = document.createElement('a-sphere');
+    // placeholderEl.setAttribute('radius', 0.5);
+    // placeholderEl.setAttribute('color', '#FFC107');
+    // placeholderEl.setAttribute('position', vector3ToObject(tagData.position));
+    // placeholderEl.setAttribute('class', 'tag-element clickable');
+    // placeholderEl.setAttribute('tag-id', tagData.id);
+    // placeholderEl.setAttribute('look-at', '#camera');
+
+    const placeholderEl = document.createElement('a-entity');
     placeholderEl.setAttribute('look-at', '#camera');
+    placeholderEl.setAttribute('position', vector3ToObject(tagData.position));
+
+
+    const childEl = document.createElement('a-entity');
+    if (tagData.type === 'text') {
+        childEl.setAttribute('gltf-model', './assets/models/info.glb');
+        childEl.setAttribute('scale', '3 3 3');
+        childEl.setAttribute('rotation', '0 90 0');
+
+
+    }
+    else if (tagData.type === 'image') {
+        childEl.setAttribute('gltf-model', './assets/models/picture.glb');
+        childEl.setAttribute('scale', '0.12,0.12, 0.12');
+        childEl.setAttribute('rotation', '0 180 0');
+
+
+    }
+    childEl.setAttribute('class', 'tag-element clickable');
+    childEl.setAttribute('tag-id', tagData.id);
+
+    placeholderEl.appendChild(childEl);
 
     let clickTimeout;
     placeholderEl.addEventListener('click', (event) => {
@@ -179,8 +202,7 @@ const createPlaceholder = (tagData) => {
         } else {
             clickTimeout = setTimeout(() => {
                 clickTimeout = null;
-                // Single click does nothing now
-            }, 300); // 300ms delay
+            }, 300);
         }
     });
 
@@ -199,13 +221,10 @@ const createContentElement = (tagData) => {
         contentEl.setAttribute('align', 'center');
         contentEl.setAttribute('width', 10);
     } else if (tagData.type === 'door') {
-        contentEl = document.createElement('a-box');
-        contentEl.setAttribute('color', '#4CC3D9');
-        contentEl.setAttribute('height', 2);
-        contentEl.setAttribute('width', 1);
-        contentEl.setAttribute('depth', 0.1);
+        contentEl = document.createElement('a-entity');
+        contentEl.setAttribute('gltf-model', './assets/models/door.glb');
+        contentEl.setAttribute('scale', '1, 1, 1');
         contentEl.setAttribute('class', 'tag-element clickable');
-        contentEl.setAttribute('position', vector3ToObject(tagData.position));
 
         let clickTimeout;
         contentEl.addEventListener('click', (event) => {
@@ -216,8 +235,7 @@ const createContentElement = (tagData) => {
             } else {
                 clickTimeout = setTimeout(() => {
                     clickTimeout = null;
-                    // Single click does nothing now
-                }, 300); // 300ms delay
+                }, 300);
             }
         });
 
@@ -295,8 +313,7 @@ const createContentElement = (tagData) => {
         } else {
             clickTimeout = setTimeout(() => {
                 clickTimeout = null;
-                // Single click does nothing now
-            }, 300); // 300ms delay
+            }, 300);
         }
     });
 
@@ -306,7 +323,7 @@ const createContentElement = (tagData) => {
 
 const onTagDoubleClick = (tagData) => {
     if (tagData.type === 'door') {
-        return; // Door interaction is handled in createContentElement
+        return;
     }
 
     if (tagData.contentVisible) {
@@ -323,7 +340,6 @@ const onTagDoubleClick = (tagData) => {
         tagData.contentVisible = true;
     }
 
-    // Reinitialize draggable functionality
     initDraggable(tagData.element, tagData, sceneEl, updateTagPosition);
 };
 
@@ -388,13 +404,12 @@ const deleteTag = (tagId) => {
                 currentScene.tags.splice(tagIndex, 1);
                 updateTagList();
 
-                // Remove highlight if the deleted tag was selected
                 if (selectedTag && selectedTag.id === tagId) {
                     removeHighlightFromScene();
                     selectedTag = null;
                 }
 
-                saveProjectToLocalStorage(); // Sauvegarde après la suppression du tag
+                saveProjectToLocalStorage();
             }
         }
     );
@@ -438,7 +453,6 @@ export const selectTag = (tagData) => {
     selectedTag = tagData;
     highlightTagInScene(tagData);
 
-    // Highlight the corresponding item in the sidebar
     const tagListItem = document.querySelector(`[data-tag-id="${tagData.id}"]`);
     if (tagListItem) {
         tagListItem.style.backgroundColor = tagData.type === 'door' ? '#e0e0e0' : '#f0f0f0';
@@ -461,7 +475,7 @@ const highlightTagInScene = (tagData) => {
     highlightEl = document.createElement('a-entity');
     highlightEl.setAttribute('geometry', {
         primitive: 'circle',
-        radius: 0.8, // Increased from 0.6 to 0.8
+        radius: 0.8,
     });
     highlightEl.setAttribute('material', {
         color: '#FFFFFF',

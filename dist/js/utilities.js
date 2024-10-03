@@ -1,4 +1,3 @@
-// Utility function to generate unique IDs
 let idCounters = {
     scene: 0,
     tag: 0,

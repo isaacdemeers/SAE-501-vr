@@ -41,7 +41,7 @@ export const initializeUI = () => {
     cameraEl = document.querySelector('#camera');
 
     updateTagButtonsState();
-    initializeTagManager(); // Add this line to initialize the tag manager
+    initializeTagManager();
 };
 
 export const showNotification = (message, type = 'info') => {
@@ -59,7 +59,6 @@ export const showNotification = (message, type = 'info') => {
 };
 
 export const setupEventListeners = () => {
-    // Only add event listeners that are not already set up in createListItem
     document.getElementById('addScenesButton').addEventListener('click', () => {
         openSceneSelectionModal();
     });
@@ -285,7 +284,7 @@ export const setupEventListeners = () => {
         }
     });
 
-    // Add other global event listeners here
+
 };
 
 const openSceneSelectionModal = () => {
@@ -601,7 +600,6 @@ export const createListItem = (data, type, actions) => {
     content.appendChild(buttonsDiv);
     li.appendChild(content);
 
-    // Add existing buttons (rename, edit, delete)
     if (actions.onRename) {
         const renameBtn = createButton('photo-edit.svg', 'rename button', actions.onRename);
         buttonsDiv.appendChild(renameBtn);
@@ -617,13 +615,11 @@ export const createListItem = (data, type, actions) => {
         buttonsDiv.appendChild(deleteBtn);
     }
 
-    // Add destination select for door tags
     if (type === 'tag' && data.type === 'door' && actions.onDestinationChange) {
         const destinationSelectBox = createDestinationSelect(data, actions);
         li.appendChild(destinationSelectBox);
     }
 
-    // Add tag selection functionality
     if (type === 'tag' && actions.onSelect) {
         li.style.cursor = 'pointer';
         content.addEventListener('click', (event) => {

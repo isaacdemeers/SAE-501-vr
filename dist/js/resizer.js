@@ -1,22 +1,17 @@
-// Sélectionner la div et le resizer
 const resizableDiv = document.getElementById("resizableDiv");
 const resizer = document.getElementById("resizer");
 
-// Variables pour garder une trace de la largeur initiale et de la position de la souris
 let originalWidth = 0;
 let originalMouseX = 0;
 
 let sidebarToggle = true;
 
-// Commencer à redimensionner
 resizer.addEventListener('mousedown', (e) => {
     e.preventDefault();
 
-    // Stocker les dimensions actuelles de la div et la position de la souris
     originalWidth = resizableDiv.offsetWidth;
     originalMouseX = e.clientX;
 
-    // Écouter les mouvements de la souris
     window.addEventListener('mousemove', resize);
     window.addEventListener('mouseup', stopResize);
 });
