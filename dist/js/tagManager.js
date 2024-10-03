@@ -431,12 +431,18 @@ const capitalizeFirstLetter = (string) => {
     return string ? string.charAt(0).toUpperCase() + string.slice(1) : '';
 };
 
-const selectTag = (tagData) => {
+export const selectTag = (tagData) => {
     if (selectedTag) {
         deselectTag();
     }
     selectedTag = tagData;
     highlightTagInScene(tagData);
+
+    // Highlight the corresponding item in the sidebar
+    const tagListItem = document.querySelector(`[data-tag-id="${tagData.id}"]`);
+    if (tagListItem) {
+        tagListItem.style.backgroundColor = tagData.type === 'door' ? '#e0e0e0' : '#f0f0f0';
+    }
 };
 
 const deselectTag = () => {

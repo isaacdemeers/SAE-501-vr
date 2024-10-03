@@ -1,4 +1,5 @@
 import { saveProjectToLocalStorage } from './storageManager.js';
+import { selectTag } from './tagManager.js'; // Add this import
 
 let isDragging = false;
 let draggedTag = null;
@@ -45,6 +46,9 @@ const startDragging = (event, tagData, sceneEl) => {
     const camera = sceneEl.camera;
     const cameraPosition = camera.getWorldPosition(new THREE.Vector3());
     currentTagDistance = cameraPosition.distanceTo(tagData.position);
+
+    // Select the tag in the sidebar when starting to drag
+    selectTag(tagData);
 
     event.preventDefault();
     event.stopPropagation();
