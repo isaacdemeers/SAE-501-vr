@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Interactive 360 Virtual Tour Builder</title>
+    <title>DOWNTAIL EDITOR</title>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -19,7 +19,7 @@
 
         <div class="nav__scroll" id="ui">
             <div class="nav__title">
-                <h1 class="nav__title__text">Project 1</h1>
+                <h1 class="nav__title__text">DOWNTAIL</h1>
                 <div class="nav__title__sidebar toggleSideBar"><img class="nav__title__sidebar__icon"
                         src="./assets/icons/layout-sidebar.svg" alt="sidebar close button"></div>
             </div>
@@ -49,30 +49,30 @@
                         src="./assets/icons/plus.svg" alt="plus button"></button>
                 <button class="button" id="addImageButton">New Image Tag<img class="button__icon"
                         src="./assets/icons/plus.svg" alt="plus button"></button>
-                <button class="button" id="addVideoButton">New Video Tag<img class="button__icon"
+                <button class="button button--disabled" id="addVideoButton">New Video Tag<img class="button__icon"
                         src="./assets/icons/plus.svg" alt="plus button"></button>
 
                 <h3 class="cat__title cat__title--ital">Tags in the scene</h3>
                 <ul class="cat__list" id="tagList"></ul>
             </div>
 
-            <div class="cat">
-                <div class="importexport">
 
-                    <button class="button button--border" id="importProjectButton">Import Project <img
-                            class="button__icon" src="./assets/icons/download.svg" alt="plus button"></button>
-                    <button class="button button--border" id="exportProjectButton">Export Project <img
-                            class="button__icon" src="./assets/icons/upload.svg" alt="plus button"></button>
-                    <input type="file" id="importProjectInput" accept=".json" style="display: none;">
-
-                    <button class="button button--border" id="clearLocalStorageButton">Delete project <img
-                            class="button__icon" src="./assets/icons/trash.svg" alt="clear storage button"></button>
-                </div>
-            </div>
         </div>
 
         </div>
     </nav>
+
+    <div class="importexport">
+
+        <button class="button button--hover" id="importProjectButton">Import Project <img class="button__icon"
+                src="./assets/icons/download.svg" alt="plus button"></button>
+        <button class="button button--hover" id="exportProjectButton">Export Project <img class="button__icon"
+                src="./assets/icons/upload.svg" alt="plus button"></button>
+        <input type="file" id="importProjectInput" accept=".json" style="display: none;">
+
+        <button class="button button--hover" id="clearLocalStorageButton">Delete project <img class="button__icon"
+                src="./assets/icons/trash.svg" alt="clear storage button"></button>
+    </div>
 
 
     <div id="sceneManagementModal" class="modal">

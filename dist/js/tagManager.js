@@ -160,13 +160,7 @@ export const createTag = (tagData) => {
 };
 
 const createPlaceholder = (tagData) => {
-    // const placeholderEl = document.createElement('a-sphere');
-    // placeholderEl.setAttribute('radius', 0.5);
-    // placeholderEl.setAttribute('color', '#FFC107');
-    // placeholderEl.setAttribute('position', vector3ToObject(tagData.position));
-    // placeholderEl.setAttribute('class', 'tag-element clickable');
-    // placeholderEl.setAttribute('tag-id', tagData.id);
-    // placeholderEl.setAttribute('look-at', '#camera');
+
 
     const placeholderEl = document.createElement('a-entity');
     placeholderEl.setAttribute('look-at', '#camera');

@@ -47,7 +47,7 @@
             font-size: 1.5rem;
             font-weight: 500;
             text-transform: uppercase;
-            font-family: "Josefin Sans", sans-serif;
+            font-family: "Notable", sans-serif;
         }
 
         &__sidebar {
@@ -210,11 +210,15 @@
 }
 
 .importexport {
-    width: 100%;
-    display: flex;
-    align-items: center;
+    position: absolute;
+    top: .5rem;
+    right: .5rem;
+    align-items: flex-end;
+    z-index: 1000;
 
+    width: 190px;
+    display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: center;
     gap: .6rem;
 }

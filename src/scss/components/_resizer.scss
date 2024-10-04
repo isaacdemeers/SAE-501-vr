@@ -1,7 +1,7 @@
 #toggleSideBar {
     display: none;
     position: absolute;
-    margin: 1rem;
+    margin: .5rem;
     background-color: var(--color-neutral-200);
     z-index: 999;
 
@@ -10,13 +10,11 @@
     }
 }
 
-/* Style de la div */
 #resizableDiv {
     position: relative;
     overflow: hidden;
 }
 
-/* Ajout d'une poignée en bas à droite pour redimensionner */
 #resizer {
     width: 20px;
     height: 100px;

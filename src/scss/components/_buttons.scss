@@ -16,12 +16,32 @@
         background-color: var(--color-neutral-300);
     }
 
+    &--hover {
+        justify-content: flex-end;
+        gap: 1rem;
+        padding: .6rem;
+        width: 44.2px;
+        height: 44.2px;
+        overflow: hidden;
+        transition: all .3s cubic-bezier(0.215, 0.610, 0.355, 1);
+        text-wrap: nowrap;
+
+        &:hover {
+            width: 180px;
+        }
+    }
+
     &--square {
         width: auto;
         padding: .5rem;
         display: flex;
         align-items: center;
         justify-content: center;
+
+    }
+
+    &--disabled {
+        display: none;
 
     }
 
@@ -34,7 +54,6 @@
         justify-content: center;
     }
 
-    &--border {}
 
     &--delete {
         background-color: var(--color-ui-delete);
