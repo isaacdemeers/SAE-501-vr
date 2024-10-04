@@ -14,12 +14,13 @@
 #### COMMENT FONCTIONNE L'EDITEUR:
 - Aller dans `/dist` et installer les dépendances :
 ```javascript
-cd /dist
+cd dist
 npm i
 ```
 - Compose Up du fichier `/compose.yml`
 ```javascript
-docker-compose up
+cd ..
+docker compose up
 ```
 - Aller sur le **[localhost:3000](http://localhost:3000/)** pour visualiser le l'éditeur
 
@@ -37,6 +38,5 @@ docker-compose up
 
 - Ajouter les assets de l'éditeur dans le dossier `/assets` du standalone.
 - Ajouter le fichier `project.json` à la racine du dossier.
-- Lancer le projet via Live Server de VS Code.
 - Lancer le projet via Live Server VS Code.
 
