@@ -28,13 +28,14 @@ docker-compose up
 # STANDALONE
 
 #### OU TROUVER LE STANDALONE:
-https://github.com/isaacdemeers/sae-501-vr/tree/Standalone
+
+[Standalone](https://github.com/isaacdemeers/sae-501-vr/tree/Standalone)
 
 
 
 #### COMMENT FONCTIONNE LE STANDALONE:
 
-- Ajouter les assets de l'éditeur dans le dossier `assets` du standalone.
+- Ajouter les assets de l'éditeur dans le dossier `/assets` du standalone.
 - Ajouter le fichier `project.json` à la racine du dossier.
-- Lancer le projet via Live Server de VS Code.
+- Lancer le projet via Live Server VS Code.
 
