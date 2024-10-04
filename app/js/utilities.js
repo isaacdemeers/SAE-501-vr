@@ -8,7 +8,6 @@ export const generateEntityId = (prefix) => {
     return `${prefix}-${idCounters[prefix]}`;
 };
 
-
 export const resetIdCounters = (newIdCounters) => {
     idCounters = newIdCounters;
 };
@@ -32,10 +31,16 @@ AFRAME.registerComponent('look-at', {
     },
 });
 
-export const cartesianToSpherical = (cartesian) => {
-    return new THREE.Spherical().setFromVector3(cartesian);
-};
-
-export const sphericalToCartesian = (spherical) => {
-    return new THREE.Vector3().setFromSpherical(spherical);
-};
+export async function loadJSON(url) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTP Error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error(`Unable to load JSON file at ${url}:`, error);
+        throw error;
+    }
+}

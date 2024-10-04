@@ -1,0 +1,292 @@
+{
+  "scenes": [
+    {
+      "id": "scene-1",
+      "name": "STUDIO",
+      "mediaSrc": "assets/GS013520.mp4",
+      "isVideo": true,
+      "tags": [
+        {
+          "id": "tag-1",
+          "name": "Door 1",
+          "type": "door",
+          "content": "scene-3",
+          "destinationSceneId": "scene-4",
+          "sceneId": "scene-1",
+          "contentVisible": true,
+          "position": [
+            -18.04725725236527,
+            -3.468648296375302,
+            7.89081647632247
+          ]
+        },
+        {
+          "id": "tag-13",
+          "name": "Image 2",
+          "type": "image",
+          "content": "assets/GS__3526.JPG",
+          "destinationSceneId": null,
+          "sceneId": "scene-1",
+          "contentVisible": false,
+          "position": [
+            -4.857349286186285,
+            -1.6387171179173072,
+            11.510803899710064
+          ]
+        },
+        {
+          "id": "tag-14",
+          "name": "Text 3",
+          "type": "text",
+          "content": "UN CANAPÉ DESIGN",
+          "destinationSceneId": null,
+          "sceneId": "scene-1",
+          "contentVisible": false,
+          "position": [
+            8.782498584886415,
+            -3.7822362497877755,
+            -2.9261591818046133
+          ]
+        }
+      ]
+    },
+    {
+      "id": "scene-2",
+      "name": "OUTSIDE",
+      "mediaSrc": "assets/GS__3523.JPG",
+      "isVideo": false,
+      "tags": [
+        {
+          "id": "tag-15",
+          "name": "Text 1",
+          "type": "text",
+          "content": "LA PORTE D'AMELIN",
+          "destinationSceneId": null,
+          "sceneId": "scene-2",
+          "contentVisible": false,
+          "position": [
+            -9.093600537749737,
+            0.8752346923600931,
+            4.066988258297165
+          ]
+        },
+        {
+          "id": "tag-16",
+          "name": "Door 2",
+          "type": "door",
+          "content": "scene-3",
+          "destinationSceneId": "scene-3",
+          "sceneId": "scene-2",
+          "contentVisible": true,
+          "position": [
+            -7.787787837425581,
+            -3.2918438015846023,
+            5.339861888215386
+          ]
+        },
+        {
+          "id": "tag-17",
+          "name": "Text 3",
+          "type": "text",
+          "content": "—>\nVERS LE SECRETARIAT",
+          "destinationSceneId": null,
+          "sceneId": "scene-2",
+          "contentVisible": false,
+          "position": [
+            7.073142445929487,
+            -1.4212937643278498,
+            6.924635728691683
+          ]
+        },
+        {
+          "id": "tag-18",
+          "name": "Text 4",
+          "type": "text",
+          "content": "<\nVERS LE HALL",
+          "destinationSceneId": null,
+          "sceneId": "scene-2",
+          "contentVisible": true,
+          "position": [
+            9.638082645510883,
+            -1.3900013148666264,
+            2.274919616815281
+          ]
+        }
+      ]
+    },
+    {
+      "id": "scene-3",
+      "name": "BUREAUX",
+      "mediaSrc": "assets/GS__3524.JPG",
+      "isVideo": false,
+      "tags": [
+        {
+          "id": "tag-4",
+          "name": "Door 1",
+          "type": "door",
+          "content": "scene-4",
+          "destinationSceneId": "scene-4",
+          "sceneId": "scene-3",
+          "contentVisible": true,
+          "position": [
+            -6.156794828598828,
+            -3.76332682736157,
+            -6.923239749495855
+          ]
+        },
+        {
+          "id": "tag-5",
+          "name": "Door 2",
+          "type": "door",
+          "content": "scene-2",
+          "destinationSceneId": "scene-2",
+          "sceneId": "scene-3",
+          "contentVisible": true,
+          "position": [
+            6.51543711099722,
+            -3.0749054369199866,
+            6.93498635951363
+          ]
+        },
+        {
+          "id": "tag-6",
+          "name": "Image 3",
+          "type": "image",
+          "content": "assets/GS__3524.JPG",
+          "destinationSceneId": null,
+          "sceneId": "scene-3",
+          "contentVisible": false,
+          "position": [
+            -6.383961365634318,
+            0.4721370632330698,
+            7.682585754523677
+          ]
+        },
+        {
+          "id": "tag-7",
+          "name": "Text 4",
+          "type": "text",
+          "content": "VOICI LE BUREAU D'AMELIN",
+          "destinationSceneId": null,
+          "sceneId": "scene-3",
+          "contentVisible": false,
+          "position": [
+            -4.372931568229978,
+            -3.913811608543689,
+            8.09688509196014
+          ]
+        },
+        {
+          "id": "tag-8",
+          "name": "Text 5",
+          "type": "text",
+          "content": "LES ARCHIVES",
+          "destinationSceneId": null,
+          "sceneId": "scene-3",
+          "contentVisible": false,
+          "position": [
+            9.281634813364528,
+            0.17920231151547078,
+            -3.717410620699186
+          ]
+        }
+      ]
+    },
+    {
+      "id": "scene-4",
+      "name": "SALLE PRINCIPALE",
+      "mediaSrc": "assets/GS__3525.JPG",
+      "isVideo": false,
+      "tags": [
+        {
+          "id": "tag-2",
+          "name": "Door 1",
+          "type": "door",
+          "content": "scene-1",
+          "destinationSceneId": "scene-1",
+          "sceneId": "scene-4",
+          "contentVisible": true,
+          "position": [
+            -6.1287463373471365,
+            -1.109666710342958,
+            7.823497179932434
+          ]
+        },
+        {
+          "id": "tag-3",
+          "name": "Door 2",
+          "type": "door",
+          "content": "scene-3",
+          "destinationSceneId": "scene-3",
+          "sceneId": "scene-4",
+          "contentVisible": true,
+          "position": [
+            -4.617479629876929,
+            -2.175548332662686,
+            -5.170435585249843
+          ]
+        },
+        {
+          "id": "tag-9",
+          "name": "Image 3",
+          "type": "image",
+          "content": "assets/oculus.jpg",
+          "destinationSceneId": null,
+          "sceneId": "scene-4",
+          "contentVisible": false,
+          "position": [
+            9.923233787551762,
+            -1.05402167329482,
+            0.6468921933489991
+          ]
+        },
+        {
+          "id": "tag-10",
+          "name": "Text 4",
+          "type": "text",
+          "content": "LE CASIER DES CASQUES",
+          "destinationSceneId": null,
+          "sceneId": "scene-4",
+          "contentVisible": false,
+          "position": [
+            9.726679708067433,
+            2.2062456132250254,
+            0.7240042477738311
+          ]
+        },
+        {
+          "id": "tag-11",
+          "name": "Text 5",
+          "type": "text",
+          "content": "ETAGERE DES APPAREILS PHOTOS",
+          "destinationSceneId": null,
+          "sceneId": "scene-4",
+          "contentVisible": false,
+          "position": [
+            4.871416405877266,
+            -0.5587678479207183,
+            -8.715335948354479
+          ]
+        },
+        {
+          "id": "tag-12",
+          "name": "Text 6",
+          "type": "text",
+          "content": "LE POSTE DE COMMANDES",
+          "destinationSceneId": null,
+          "sceneId": "scene-4",
+          "contentVisible": false,
+          "position": [
+            -1.8473853768514323,
+            -1.634882047974261,
+            9.690940509496844
+          ]
+        }
+      ]
+    }
+  ],
+  "idCounters": {
+    "scene": 4,
+    "tag": 18
+  }
+}

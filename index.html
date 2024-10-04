@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Interactive 360 Virtual Tour Builder</title>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+</head>
+
+<body>
+
+
+    <a-scene>
+        <a-assets id="assets">
+        </a-assets>
+
+        <a-entity id="sky" class="clickable"
+            geometry="primitive: sphere; radius: 5000; segmentsWidth: 64; segmentsHeight: 64"
+            material="shader: flat; side: back;" scale="-1 1 1"></a-entity>
+
+        <a-entity id="camera" camera look-controls>
+            <a-entity cursor="rayOrigin: mouse; fuse: false" raycaster="objects: .clickable; far: 10000"
+                position="0 0 -0.1">
+            </a-entity>
+        </a-entity>
+
+        <a-entity laser-controls="hand: left" raycaster="objects: .clickable; far: 10000"></a-entity>
+        <a-entity laser-controls="hand: right" raycaster="objects: .clickable; far: 10000"></a-entity>
+    </a-scene>
+
+    <script type="module" src="./app/js/main.js"></script>
+
+</body>
+
+</html>
