@@ -14,12 +14,13 @@
 #### COMMENT FONCTIONNE L'EDITEUR:
 - Aller dans `/dist` et installer les dépendances :
 ```javascript
-cd /dist
+cd dist
 npm i
 ```
 - Compose Up du fichier `/compose.yml`
 ```javascript
-docker-compose up
+cd ..
+docker compose up
 ```
 - Aller sur le **[localhost:3000](http://localhost:3000/)** pour visualiser le l'éditeur
 
@@ -29,7 +30,7 @@ docker-compose up
 
 #### OU TROUVER LE STANDALONE:
 
-[STANDALONE](https://github.com/isaacdemeers/sae-501-vr/tree/Standalone)
+[Standalone](https://github.com/isaacdemeers/sae-501-vr/tree/Standalone)
 
 
 
