@@ -111,17 +111,19 @@ const createContentElement = (tagData) => {
     contentEl.setAttribute('class', 'tag-element clickable');
     contentEl.setAttribute('look-at', '#camera');
 
-    let clickTimeout;
+    // let clickTimeout;
     contentEl.addEventListener('click', (event) => {
-        if (clickTimeout) {
-            clearTimeout(clickTimeout);
-            clickTimeout = null;
-            onTagDoubleClick(tagData);
-        } else {
-            clickTimeout = setTimeout(() => {
-                clickTimeout = null;
-            }, 300);
-        }
+        // if (clickTimeout) {
+        //     clearTimeout(clickTimeout);
+        //     clickTimeout = null;
+        //     onTagDoubleClick(tagData);
+        // } else {
+        //     clickTimeout = setTimeout(() => {
+        //         clickTimeout = null;
+        //     }, 300);
+        // }
+
+        onTagDoubleClick(tagData);
     });
 
     sceneEl.appendChild(contentEl);
