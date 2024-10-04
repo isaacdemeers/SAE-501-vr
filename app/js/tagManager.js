@@ -37,15 +37,15 @@ const createPlaceholder = (tagData) => {
 
     let clickTimeout;
     placeholderEl.addEventListener('click', (event) => {
-        if (clickTimeout) {
-            clearTimeout(clickTimeout);
-            clickTimeout = null;
-            onTagDoubleClick(tagData);
-        } else {
-            clickTimeout = setTimeout(() => {
-                clickTimeout = null;
-            }, 300);
-        }
+        // if (clickTimeout) {
+            // clearTimeout(clickTimeout);
+            // clickTimeout = null;
+        onTagDoubleClick(tagData);
+        // } else {
+            // clickTimeout = setTimeout(() => {
+               // clickTimeout = null;
+            // }, 300);
+        //}
     });
 
     sceneEl.appendChild(placeholderEl);
