@@ -29,7 +29,7 @@ docker-compose up
 
 #### OU TROUVER LE STANDALONE:
 
-[Standalone](https://github.com/isaacdemeers/sae-501-vr/tree/Standalone)
+[STANDALONE](https://github.com/isaacdemeers/sae-501-vr/tree/Standalone)
 
 
 
