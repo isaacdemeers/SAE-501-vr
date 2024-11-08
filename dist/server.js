@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
+const JSZip = require('jszip');
 
 const app = express();
 
@@ -137,6 +138,44 @@ app.delete('/deletemedia', (req, res) => {
 
         res.json({ message: 'Media deleted successfully.' });
     });
+});
+
+app.get('/export-project', async (req, res) => {
+    try {
+        const zip = new JSZip();
+        const assetsDir = path.join(__dirname, 'assets');
+
+        // Lire tous les fichiers du dossier assets
+        const files = await fs.promises.readdir(assetsDir);
+
+        // Ajouter chaque fichier au zip
+        for (const file of files) {
+            const filePath = path.join(assetsDir, file);
+            // Vérifier si c'est un fichier (pas un répertoire)
+            const stat = await fs.promises.stat(filePath);
+            if (stat.isFile()) {
+                const fileData = await fs.promises.readFile(filePath);
+                zip.file(`assets/${file}`, fileData);
+            }
+        }
+
+        // Ajouter le project.json dans le dossier assets
+        const projectData = req.query.projectData;
+        if (projectData) {
+            zip.file('assets/project.json', decodeURIComponent(projectData));
+        }
+
+        // Générer le zip
+        const zipContent = await zip.generateAsync({ type: 'nodebuffer' });
+
+        // Envoyer le zip
+        res.setHeader('Content-Type', 'application/zip');
+        res.setHeader('Content-Disposition', 'attachment; filename=virtual-tour-project.zip');
+        res.send(zipContent);
+    } catch (error) {
+        console.error('Error creating zip:', error);
+        res.status(500).json({ error: 'Failed to create project archive' });
+    }
 });
 
 const port = process.env.PORT || 3000;

@@ -25,4 +25,20 @@ export const clearLocalStorage = () => {
     location.reload();
 };
 
+export const downloadProjectArchive = () => {
+    const projectData = exportProjectData();
+    const projectDataStr = encodeURIComponent(JSON.stringify(projectData));
+
+    // Créer l'URL avec les données du projet
+    const exportUrl = `/export-project?projectData=${projectDataStr}`;
+
+    // Créer un lien temporaire pour le téléchargement
+    const link = document.createElement('a');
+    link.href = exportUrl;
+    link.download = 'virtual-tour-project.zip';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+};
+
 
